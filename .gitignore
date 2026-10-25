@@ -1,0 +1,28 @@
+# Python (compilador, si se elige Python)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# C
+*.o
+*.a
+*.so
+build/
+*.out
+
+# Rust
+/target/
+Cargo.lock
+
+# Node / web
+node_modules/
+dist/
+build/
+
+# Editores y sistema
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
