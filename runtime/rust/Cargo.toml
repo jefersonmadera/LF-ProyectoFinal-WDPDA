@@ -1,0 +1,10 @@
+[package]
+name = "wdpda"
+version = "0.1.0"
+edition = "2021"
+description = "Esqueleto del runtime Rust del validador WDPDA (Semana 1): init/feed/finish con pila fija, sin asignación dinámica en el código del runtime"
+license = "MIT"
+
+[lib]
+name = "wdpda"
+path = "src/lib.rs"

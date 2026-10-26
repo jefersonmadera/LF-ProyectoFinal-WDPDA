@@ -19,10 +19,22 @@ Estas dudas quedan anotadas aquí para retomarlas cuando Jeferson lo decida, sin
 - [ ] ¿`pattern` debe aceptar toda la sintaxis ECMA-262 o un subconjunto regular documentado?
 - [ ] Fecha exacta de entrega y de sustentación, y si hay entregas parciales.
 
+## Decidido en Semana 1 (2026-10-26, pendiente de revisión de Sergio)
+
+- **Lenguaje del compilador: Python 3.12.** Se implementó la
+  Fase 1 en Python por iteración rápida, como recomienda la guía.
+  Si Sergio prefiere Rust para el compilador, se revisa antes de
+  la Semana 2; el IR en JSON hace que el cambio sea posible sin
+  tocar los runtimes.
+- **API del runtime (esqueleto):** `init` / `feed` / `finish` en C
+  y en Rust, con la misma semántica y los mismos códigos de error.
+  La firma exacta en cada lenguaje está en `runtime/c/wdpda.h` y
+  en `runtime/rust/src/lib.rs`; falta congelarla por escrito
+  entre ambos (ver abajo).
+
 ## Pendiente — acuerdo entre integrantes
 
 - [ ] Reparto A (teoría/compilador) / B (runtime/plataforma): ¿quién es quién?
 - [ ] Formato exacto del IR del autómata (JSON único que lean el backend C, el backend Rust, el visualizador web y el informe).
-- [ ] API `init/feed/finish` definitiva.
-- [ ] Lenguaje del compilador: Python 3.12 (recomendado en la guía por iteración rápida) o Rust si ambos lo dominan.
+- [ ] API `init/feed/finish` definitiva (esqueleto ya implementado, falta acuerdo escrito).
 - [ ] Nube y NoSQL: Azure Container Apps + Cosmos DB, o AWS ECS/EC2 + DynamoDB, según la que ya conozcan.

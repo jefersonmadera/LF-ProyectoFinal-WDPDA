@@ -6,7 +6,16 @@ Compilador que traduce un esquema JSON (JSON Schema, con extensión a un subconj
 
 **Integrantes:** Jeferson Santiago Madera Gaona y Sergio Alexander Gómez Zapata
 **Curso:** Lenguajes Formales y Autómatas 2026-2 — Prof. Marco Suárez (UPTC)
-**Estado:** Semana 0 — arranque del repositorio. Sin decisiones de alcance cerradas con el profesor todavía (ver `docs/decisiones.md`).
+**Estado:** Semana 1 completada (26 oct – 1 nov 2026) — Fase 1
+léxica: tokenizador JSON/XML escrito a mano en Python con DFA,
+UTF-8 y streaming por bloques, esqueleto del runtime en C y Rust
+(`init`/`feed`/`finish`, pila fija, sin asignación dinámica),
+13 pruebas (incluida equivalencia por bloques de 1 y 7 bytes) y
+bench. Detalle en `docs/fase1-lexico.md`. Sin decisiones de
+alcance cerradas con el profesor todavía (ver `docs/decisiones.md`).
+Revisión cruzada del otro integrante pendiente: la invitación a
+Sergio (@sergiomezzz) seguía pendiente de aceptación al cierre
+de la Semana 1.
 
 ## Estructura
 
@@ -33,6 +42,14 @@ Propuesta inicial, pendiente de acuerdo escrito entre ambos integrantes:
 - Cada viernes, 30 minutos: cada uno explica al otro lo que hizo esa semana, sin mirar el código.
 - Las cifras del informe deben coincidir con la demo.
 
-## Cómo correrlo en local
+## Cómo correrlo en local (Semana 1)
 
-_Pendiente: se completará cuando esté la primera rebanada vertical (esquema mínimo → autómata → C → validación → métrica)._
+```bash
+python3 -m unittest discover -s tests -v
+python3 bench/bench.py --size-kb 64 --reps 3
+gcc -std=c11 -Wall -Wextra -Werror -O2 -o /tmp/wdpda_cli runtime/c/wdpda.c runtime/c/main.c
+cargo test --manifest-path runtime/rust/Cargo.toml
+```
+
+_Pendiente (Semana 2): la primera rebanada vertical completa
+(esquema mínimo → autómata → C → validación → métrica)._
