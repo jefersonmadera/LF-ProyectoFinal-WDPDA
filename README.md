@@ -26,6 +26,7 @@ de la Semana 1.
 - `tests/` — Casos válidos, inválidos, malformados, fuera del DPDA puro, de bombeo y extremos.
 - `bench/` — Scripts de medición reproducibles (misma máquina, calentamiento, mediana).
 - `docs/` — Documentación técnica, decisiones y plan de trabajo.
+- `avance_mvp/` — prototipo de avance con esquema mínimo, validación en C y ejemplos de ejecución.
 
 ## API del validador (por acordar y congelar en Semana 0)
 
@@ -51,5 +52,59 @@ gcc -std=c11 -Wall -Wextra -Werror -O2 -o /tmp/wdpda_cli runtime/c/wdpda.c runti
 cargo test --manifest-path runtime/rust/Cargo.toml
 ```
 
+## Cómo ejecutar el avance MVP en cualquier PC con GCC
+
+Este prototipo no requiere dependencias adicionales. Solo necesitas un compilador C compatible con `gcc` o `clang`.
+
+### 1) Compilar el validador
+
+```bash
+gcc -std=c11 -Wall -Wextra -O2 -o avance_mvp/validator avance_mvp/validator.c avance_mvp/schema.c
+```
+
+### 2) Ejecutar con un payload válido
+
+```bash
+./avance_mvp/validator avance_mvp/example_payload_valid.json
+```
+
+Salida esperada:
+
+```text
+VALIDO: OK
+```
+
+### 3) Ejecutar con un payload inválido
+
+```bash
+./avance_mvp/validator avance_mvp/example_payload_invalid.json
+```
+
+Salida esperada:
+
+```text
+INVALIDO: Field 'edad' expected integer but found string
+```
+
+### 4) Si no tienes gcc instalado
+
+- Linux (Debian/Ubuntu):
+  ```bash
+  sudo apt update
+  sudo apt install build-essential
+  ```
+- macOS:
+  ```bash
+  xcode-select --install
+  ```
+- Windows:
+  - usar WSL2 con Ubuntu, o
+  - instalar MinGW/MinGW-w64 y ejecutar `gcc` desde la terminal.
+
+Este avance sirve como base de demostración para mostrar que el proyecto ya tiene:
+- un subconjunto formal del esquema,
+- validación estructural en C,
+- y ejemplos ejecutables válidos e inválidos.
+
 _Pendiente (Semana 2): la primera rebanada vertical completa
-(esquema mínimo → autómata → C → validación → métrica)._
+(esquema mínimo → autómata → C → validación → métrica)._ 
