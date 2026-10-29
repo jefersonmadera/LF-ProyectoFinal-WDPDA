@@ -26,3 +26,6 @@ build/
 *.swp
 .DS_Store
 Thumbs.db
+
+# MVP (binario compilado en local, no se sube)
+avance_mvp/validator

@@ -6,16 +6,21 @@ Compilador que traduce un esquema JSON (JSON Schema, con extensión a un subconj
 
 **Integrantes:** Jeferson Santiago Madera Gaona y Sergio Alexander Gómez Zapata
 **Curso:** Lenguajes Formales y Autómatas 2026-2 — Prof. Marco Suárez (UPTC)
-**Estado:** Semana 1 completada (26 oct – 1 nov 2026) — Fase 1
-léxica: tokenizador JSON/XML escrito a mano en Python con DFA,
-UTF-8 y streaming por bloques, esqueleto del runtime en C y Rust
+**Estado:** Semana 1 completada (26 oct – 1 nov 2026) y Semana 2
+adelantada al 29 de octubre de 2026 — Fase 1 léxica: tokenizador
+JSON/XML escrito a mano en Python con DFA, UTF-8 y streaming por
+bloques, esqueleto del runtime en C y Rust
 (`init`/`feed`/`finish`, pila fija, sin asignación dinámica),
 13 pruebas (incluida equivalencia por bloques de 1 y 7 bytes) y
-bench. Detalle en `docs/fase1-lexico.md`. Sin decisiones de
-alcance cerradas con el profesor todavía (ver `docs/decisiones.md`).
-Revisión cruzada del otro integrante pendiente: la invitación a
-Sergio (@sergiomezzz) seguía pendiente de aceptación al cierre
-de la Semana 1.
+bench. Detalle en `docs/fase1-lexico.md`. Fase 2: parser LL(1) por
+descenso recursivo y primera rebanada vertical (esquema → parser →
+validación en C → error con ruta), con el prototipo `avance_mvp/`
+corregido: 15/15 pruebas y compilación limpia con `-Werror`.
+Detalle en `docs/fase2-parser.md`. Sin decisiones de alcance
+cerradas con el profesor todavía (ver `docs/decisiones.md`).
+Sergio (@sergiomezzz) ya aceptó la invitación y aportó el
+`avance_mvp/` inicial; su revisión de la Semana 1 sigue pendiente
+de confirmación explícita.
 
 ## Estructura
 
@@ -26,7 +31,7 @@ de la Semana 1.
 - `tests/` — Casos válidos, inválidos, malformados, fuera del DPDA puro, de bombeo y extremos.
 - `bench/` — Scripts de medición reproducibles (misma máquina, calentamiento, mediana).
 - `docs/` — Documentación técnica, decisiones y plan de trabajo.
-- `avance_mvp/` — prototipo de avance con esquema mínimo, validación en C y ejemplos de ejecución.
+- `avance_mvp/` — prototipo de avance con esquema mínimo, validación en C, ejemplos de ejecución y pruebas (`avance_mvp/tests/run_tests.sh`).
 
 ## API del validador (por acordar y congelar en Semana 0)
 
@@ -59,7 +64,7 @@ Este prototipo no requiere dependencias adicionales. Solo necesitas un compilado
 ### 1) Compilar el validador
 
 ```bash
-gcc -std=c11 -Wall -Wextra -O2 -o avance_mvp/validator avance_mvp/validator.c avance_mvp/schema.c
+gcc -std=c11 -Wall -Wextra -Werror -O2 -o avance_mvp/validator avance_mvp/validator.c avance_mvp/schema.c
 ```
 
 ### 2) Ejecutar con un payload válido
@@ -83,8 +88,26 @@ VALIDO: OK
 Salida esperada:
 
 ```text
-INVALIDO: Field 'edad' expected integer but found string
+INVALIDO: Field 'edad' expected integer but found string (/edad)
 ```
+
+### 3b) Correr las pruebas del MVP
+
+```bash
+bash avance_mvp/tests/run_tests.sh
+```
+
+Salida esperada al final:
+
+```text
+== resultado: 15 pasaron, 0 fallaron ==
+```
+
+Códigos de salida del validador: 0 válido, 2 inválido, 1 error de
+uso, de archivo o de esquema. El segundo argumento es opcional y
+permite usar otro esquema: `./avance_mvp/validator payload.json
+otro_esquema.json`. Hay que correrlo desde la raíz del repo, porque
+el esquema por defecto se busca como `avance_mvp/example_schema.json`.
 
 ### 4) Si no tienes gcc instalado
 
@@ -103,8 +126,11 @@ INVALIDO: Field 'edad' expected integer but found string
 
 Este avance sirve como base de demostración para mostrar que el proyecto ya tiene:
 - un subconjunto formal del esquema,
-- validación estructural en C,
+- validación estructural en C con parser real (no búsqueda de texto),
+- errores con ruta JSON Pointer y posición en bytes,
 - y ejemplos ejecutables válidos e inválidos.
 
-_Pendiente (Semana 2): la primera rebanada vertical completa
-(esquema mínimo → autómata → C → validación → métrica)._ 
+_Límites honestos: solo nivel superior del objeto, solo JSON, y
+validación directa todavía sin WDPDA. El siguiente paso es la
+validación anidada, la construcción del WDPDA y la unión con el
+runtime en streaming. Ver `docs/fase2-parser.md`._

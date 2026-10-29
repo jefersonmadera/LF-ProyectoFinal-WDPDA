@@ -1,8 +1,21 @@
-VALIDO: OK
+Comando: gcc -std=c11 -Wall -Wextra -Werror -O2 -o avance_mvp/validator avance_mvp/validator.c avance_mvp/schema.c
+(compilación limpia, sin advertencias)
 
-Se valida el payload con el esquema mínimo:
+Comando: ./avance_mvp/validator avance_mvp/example_payload_valid.json
+VALIDO: OK
+Código de salida: 0
+
+Comando: ./avance_mvp/validator avance_mvp/example_payload_invalid.json
+INVALIDO: Field 'edad' expected integer but found string (/edad)
+Código de salida: 2
+
+Comando: bash avance_mvp/tests/run_tests.sh
+OK:   campo anidado con tipo equivocado -> INVALIDO: Field 'edad' expected integer but found object (/edad)
+OK:   clave duplicada en el objeto -> INVALIDO: duplicate field: edad (/edad)
+== resultado: 15 pasaron, 0 fallaron ==
+
+Esquema validado (avance_mvp/example_schema.json):
 - type: object
 - required: edad, nombre
 - propiedades: edad(integer), nombre(string), activo(boolean)
-
-Resultado observado: el payload válido cumple las reglas de tipo y campos obligatorios.
+- campos no listados: se permiten (el esquema no fija additionalProperties: false)
