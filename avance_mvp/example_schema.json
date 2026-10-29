@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "edad": { "type": "integer" },
+    "nombre": { "type": "string" },
+    "activo": { "type": "boolean" }
+  },
+  "required": ["edad", "nombre"]
+}

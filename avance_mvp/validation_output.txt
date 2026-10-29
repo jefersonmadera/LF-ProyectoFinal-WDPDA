@@ -1,0 +1,8 @@
+VALIDO: OK
+
+Se valida el payload con el esquema mínimo:
+- type: object
+- required: edad, nombre
+- propiedades: edad(integer), nombre(string), activo(boolean)
+
+Resultado observado: el payload válido cumple las reglas de tipo y campos obligatorios.
