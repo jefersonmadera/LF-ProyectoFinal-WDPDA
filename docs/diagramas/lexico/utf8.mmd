@@ -1,0 +1,27 @@
+stateDiagram-v2
+    direction LR
+    s0 : ok
+    s1 : c1
+    s2 : c2
+    s3 : c3
+    s4 : e0
+    s5 : ed
+    s6 : f0
+    s7 : f4
+    [*] --> s0
+    s0 --> s0 : A
+    s0 --> s1 : B
+    s0 --> s2 : C
+    s0 --> s4 : D
+    s0 --> s5 : E
+    s0 --> s3 : F
+    s0 --> s6 : G
+    s0 --> s7 : H
+    s1 --> s0 : x | y | z
+    s2 --> s1 : x | y | z
+    s3 --> s2 : x | y | z
+    s4 --> s1 : z
+    s5 --> s1 : x | y
+    s6 --> s2 : y | z
+    s7 --> s2 : x
+    s0 --> [*]

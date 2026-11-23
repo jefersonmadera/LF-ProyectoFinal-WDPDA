@@ -1,0 +1,10 @@
+{
+  "title": "Tupla con prefixItems y contains",
+  "type": "array",
+  "prefixItems": [ { "type": "string" }, { "type": "integer" }, { "type": "boolean" } ],
+  "items": { "type": "number" },
+  "contains": { "type": "number", "minimum": 100 },
+  "minContains": 1,
+  "maxContains": 2,
+  "maxItems": 10
+}

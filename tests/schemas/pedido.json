@@ -1,0 +1,33 @@
+{
+  "title": "Pedido",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "pattern": "^PED-[0-9]{6}$" },
+    "cliente": {
+      "type": "object",
+      "properties": {
+        "nombre": { "type": "string", "minLength": 2 },
+        "telefono": { "type": ["string", "null"], "pattern": "^\\+?[0-9 ]{7,15}$" }
+      },
+      "required": ["nombre"]
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "properties": {
+          "sku": { "type": "string", "pattern": "^[A-Z]{3}-[0-9]{4}$" },
+          "cantidad": { "type": "integer", "minimum": 1, "maximum": 999 },
+          "precio": { "type": "number", "exclusiveMinimum": 0, "multipleOf": 0.01 }
+        },
+        "required": ["sku", "cantidad", "precio"],
+        "additionalProperties": false
+      }
+    },
+    "etiquetas": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "estado": { "enum": ["creado", "pagado", "enviado", "entregado"] }
+  },
+  "required": ["id", "cliente", "items", "estado"]
+}

@@ -35,6 +35,63 @@ Estas dudas quedan anotadas aquí para retomarlas cuando Jeferson lo decida, sin
 ## Pendiente — acuerdo entre integrantes
 
 - [ ] Reparto A (teoría/compilador) / B (runtime/plataforma): ¿quién es quién?
-- [ ] Formato exacto del IR del autómata (JSON único que lean el backend C, el backend Rust, el visualizador web y el informe).
-- [ ] API `init/feed/finish` definitiva (esqueleto ya implementado, falta acuerdo escrito).
-- [ ] Nube y NoSQL: Azure Container Apps + Cosmos DB, o AWS ECS/EC2 + DynamoDB, según la que ya conozcan.
+- [x] ~~Formato exacto del IR~~ → **propuesta implementada**: `docs/ir.md` (versión 1). Falta la aprobación escrita de ambos.
+- [x] ~~API `init/feed/finish` definitiva~~ → **propuesta implementada** en C (`wd_*`, `wx_*`), Rust y Python (`docs/ir.md`, sección final). Falta la aprobación escrita de ambos.
+- [ ] Nube y NoSQL: **propuesta**: Azure Container Apps + Cosmos DB for MongoDB (o MongoDB Atlas en AWS). La app usa `pymongo`, así que sirve para ambas; DynamoDB exigiría reimplementar `web/backend/store.py`. Falta decidir y crear la cuenta.
+
+## Decisiones técnicas de las Fases 2–7 (noviembre 2026, propuestas para revisión)
+
+Cada una con su alternativa descartada; el detalle está en `docs/`.
+
+- **Analizador LL(1) dirigido por tabla, con las tablas calculadas por el
+  compilador** (FIRST/FOLLOW/M a partir de la gramática en texto).
+  - Descartado: descenso recursivo escrito a mano (como el del MVP).
+    Funciona, pero no demuestra que la gramática sea LL(1); la tabla sí,
+    y detectó un conflicto real (`$` en las regex).
+- **El metalenguaje de esquemas como gramática LL(1)**, con las palabras
+  clave como terminales.
+  - Descartado: parsear el esquema como JSON genérico y validarlo
+    después. Así se pierde la verificación sintáctica de parte del
+    meta-esquema.
+- **Tres capas sobre una pila** (AFD léxico → DPDA sintáctico → carriles
+  del esquema).
+  - Descartado: un único AFD/DPDA sobre bytes con las claves expandidas
+    en el control. Explota el tamaño (cada clave por cada estado) y no
+    deja ver la teoría por capas.
+- **Pesos en el semianillo tropical = número de violaciones** (0 válido,
+  +∞ mal formado); `anyOf` = min.
+  - Descartado: pesos solo como costo de ordenamiento. Esa opción queda
+    como costo estático secundario (`checks` ordenados por costo).
+- **Combinadores como producto de VPA con carriles acotados**
+  (determinización en ejecución).
+  - Descartado: determinizar en compilación (`2^O(n²)`) o rechazar la
+    categoría (c).
+- **`pattern` por regex → Thompson → subconjuntos → Moore**, con un tope
+  de 4096 estados.
+  - Descartado: un motor de regex con retroceso (ReDoS) o la sintaxis
+    ECMA completa (las retrorreferencias no son regulares).
+- **Decimales exactos** (dígitos + exponente; `multipleOf` modular).
+  - Descartado: `double`. Las pruebas mostraron errores reales de
+    `jsonschema` por usarlo.
+- **`uniqueItems` con hash canónico de 64 bits en una tabla acotada.**
+  - Descartado: guardar los elementos (memoria no acotada) o no
+    soportarlo.
+- **El generador emite tablas `const`, no lógica**; el runtime es fijo.
+  - Descartado: generar `switch`/`goto` por estado. Es más rápido en
+    teoría, pero el código generado es más difícil de verificar y más
+    expuesto a inyección.
+- **XSD con Glushkov y verificación de UPA**; despliegue anidado de
+  `maxOccurs`.
+  - Descartado: Thompson + subconjuntos. No permitiría detectar las
+    violaciones de UPA, que XSD exige rechazar.
+- **Motor de referencia en Python** como especificación ejecutable, más
+  pruebas cruzadas con C y Rust.
+  - Descartado: probar solo C. Sin una segunda implementación no hay
+    oráculo interno.
+- **Web con FastAPI + JS sin framework**; DOT con viz.js y gráficas con
+  Chart.js desde CDN.
+  - Descartado: Angular/React. Más infraestructura para una SPA de 6
+    pestañas.
+- **XML solo en el backend C** (Rust cubre JSON).
+  - Descartado por tiempo: portar `wdpda_xml.c` a Rust. Queda como
+    trabajo futuro y se dice así en la sustentación.

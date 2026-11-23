@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WDPDA — Validación de esquemas</title>
+<link rel="stylesheet" href="/static/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@viz-js/viz@3.4.0/lib/viz-standalone.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Validación en tiempo real de esquemas JSON/XML</h1>
+    <p class="sub">Compilador esquema → autómata de pila ponderado (WDPDA) → validador nativo C/Rust · Lenguajes Formales y Autómatas 2026-2 · UPTC</p>
+  </div>
+  <div id="health" class="pill">conectando…</div>
+</header>
+
+<nav id="tabs">
+  <button data-tab="esquema" class="active">1. Esquema</button>
+  <button data-tab="automata">2. Autómata</button>
+  <button data-tab="validar">3. Validar</button>
+  <button data-tab="stream">4. Tiempo real</button>
+  <button data-tab="bench">5. Comparación</button>
+  <button data-tab="casos">6. Casos (NoSQL)</button>
+</nav>
+
+<main>
+<!-- 1. ESQUEMA -->
+<section id="esquema" class="tab active">
+  <div class="row">
+    <div class="col">
+      <div class="toolbar">
+        <label>Ejemplo <select id="examples"></select></label>
+        <label>Formato <select id="format"><option value="json">JSON Schema 2020-12</option><option value="xsd">XSD (subconjunto)</option></select></label>
+        <button id="btn-compile" class="primary">Compilar</button>
+      </div>
+      <textarea id="schema" spellcheck="false"></textarea>
+      <div id="compile-msg" class="msg"></div>
+    </div>
+    <div class="col">
+      <h3>Resultado de la compilación</h3>
+      <div id="stats" class="cards"></div>
+      <h3>Clasificación de palabras clave (Fase 3)</h3>
+      <table id="classif"><thead><tr><th>palabra clave</th><th>categoría</th><th>estrategia</th><th>usos</th></tr></thead><tbody></tbody></table>
+      <div class="toolbar">
+        <a id="btn-download" class="button" href="#">Descargar código C/Rust (.zip)</a>
+        <button id="btn-showc">Ver C generado</button>
+      </div>
+      <pre id="ccode" class="code hidden"></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 2. AUTÓMATA -->
+<section id="automata" class="tab">
+  <div class="toolbar">
+    <label>Vista <select id="auto-view">
+      <option value="simple">WDPDA: transiciones de peso 0</option>
+      <option value="full">WDPDA con pesos (rojo = violación, w=1)</option>
+    </select></label>
+    <label>AFD <select id="dfa-select"></select></label>
+    <span id="det" class="pill"></span>
+  </div>
+  <p class="hint">Estados: <b>V(n)</b> espera un valor del nodo n · <b>K1/K2</b> espera clave · <b>C(n,k)</b> leyó la clave k · <b>N</b> tras un miembro · <b>A1/A2/M</b> arreglos · <b>R</b> retorno (decide con el tope de pila, ε) · <b>F</b> aceptación · <b>⊤</b> cualquier JSON (DPDA sintáctico). Etiqueta: <code>entrada, tope/apila ; w=peso</code>.</p>
+  <div id="graph" class="graph"></div>
+  <h3>Autómatas finitos del IR (claves, enum, pattern, contenido XSD)</h3>
+  <div id="dfa-graph" class="graph small"></div>
+  <details><summary>δ completo (tabla)</summary><div id="delta" class="scroll"></div></details>
+</section>
+
+<!-- 3. VALIDAR -->
+<section id="validar" class="tab">
+  <div class="row">
+    <div class="col">
+      <div class="toolbar">
+        <label>Motor <select id="engine"><option value="py">Referencia (Python, con traza)</option><option value="c">Nativo C (sandbox)</option></select></label>
+        <label>Bloque <input id="chunk" type="number" min="0" value="0" title="0 = todo junto"></label>
+        <label><input type="checkbox" id="failfast"> fallo temprano</label>
+        <button id="btn-gen">Generar válido</button>
+        <button id="btn-gen-bad">Generar inválido</button>
+        <button id="btn-validate" class="primary">Validar</button>
+        <button id="btn-tree">Árbol de derivación</button>
+      </div>
+      <textarea id="payload" spellcheck="false"></textarea>
+    </div>
+    <div class="col">
+      <div id="verdict" class="verdict"></div>
+      <table id="errors"><thead><tr><th>código</th><th>ruta (JSON Pointer / XPath)</th><th>byte</th><th>mensaje</th></tr></thead><tbody></tbody></table>
+      <div id="metrics" class="cards"></div>
+    </div>
+  </div>
+  <h3>Traza del DPDA (token, estado sintáctico, pila de carriles, peso acumulado)</h3>
+  <div id="trace" class="scroll"></div>
+  <h3>Árbol de derivación (gramática LL(1))</h3>
+  <div id="tree" class="graph"></div>
+</section>
+
+<!-- 4. STREAMING -->
+<section id="stream" class="tab">
+  <p class="hint">El payload del editor de la pestaña 3 se envía por WebSocket en bloques del tamaño elegido; el servidor alimenta el WDPDA con <code>feed()</code> y responde su estado tras cada bloque: el validador nunca ve el documento completo.</p>
+  <div class="toolbar">
+    <label>Bloque (bytes) <input id="s-chunk" type="number" value="8"></label>
+    <label>Retardo (ms) <input id="s-delay" type="number" value="120"></label>
+    <button id="btn-stream" class="primary">Transmitir</button>
+  </div>
+  <div class="streambox">
+    <div id="s-text" class="code"></div>
+    <div id="s-state" class="cards"></div>
+  </div>
+  <div id="s-log" class="scroll"></div>
+</section>
+
+<!-- 5. BENCH -->
+<section id="bench" class="tab">
+  <p class="hint">Comparación en vivo sobre lotes generados desde el esquema compilado: WDPDA (C generado, una pasada, sin malloc) frente a una línea base DOM en C (mismo esquema, mismas comprobaciones) y frente a <code>jsonschema</code> de Python (DOM + interpretado). Mediana de 5 repeticiones.</p>
+  <div class="toolbar">
+    <label>Tamaños (KB) <input id="b-sizes" value="64,512,2048"></label>
+    <button id="btn-bench" class="primary">Medir</button>
+  </div>
+  <div class="row">
+    <div class="col"><canvas id="chart-mbs" height="220"></canvas></div>
+    <div class="col"><canvas id="chart-mem" height="220"></canvas></div>
+  </div>
+  <table id="bench-table"><thead><tr><th>KB</th><th>implementación</th><th>MB/s</th><th>ciclos/byte</th><th>asignaciones</th><th>memoria</th><th>estado</th></tr></thead><tbody></tbody></table>
+</section>
+
+<!-- 6. CASOS -->
+<section id="casos" class="tab">
+  <div class="toolbar">
+    <label>Categoría <select id="c-cat">
+      <option value="">todas</option><option>validos</option><option>invalidos</option><option>malformados</option><option>fuera_dpda</option><option>bombeo</option><option>extremos</option>
+    </select></label>
+    <button id="btn-cases">Cargar</button>
+    <button id="btn-runall" class="primary">Ejecutar todos</button>
+    <span id="c-summary" class="pill"></span>
+  </div>
+  <table id="cases"><thead><tr><th>caso</th><th>categoría</th><th>formato</th><th>descripción</th><th>esperado</th><th>oráculo</th><th>Python</th><th>C</th><th>MB/s C</th><th></th></tr></thead><tbody></tbody></table>
+</section>
+</main>
+<footer>Jeferson Santiago Madera Gaona · Sergio Alexander Gómez Zapata — Prof. Marco Suárez · UPTC Sogamoso 2026-2</footer>
+<script src="/static/app.js"></script>
+</body>
+</html>

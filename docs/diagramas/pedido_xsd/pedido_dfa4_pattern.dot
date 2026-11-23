@@ -1,0 +1,24 @@
+digraph "AFD 4 (pattern): ^(?:[A-Z]{3}-[0-9]{4})$" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "q0";
+  "q0" [shape=circle];
+  "q1" [shape=circle];
+  "q2" [shape=circle];
+  "q3" [shape=circle];
+  "q4" [shape=circle];
+  "q5" [shape=circle];
+  "q6" [shape=circle];
+  "q7" [shape=circle];
+  "q8" [shape=doublecircle];
+  "q0" -> "q1" [label="A-Z"];
+  "q1" -> "q2" [label="A-Z"];
+  "q2" -> "q3" [label="A-Z"];
+  "q3" -> "q4" [label="-"];
+  "q4" -> "q5" [label="0-9"];
+  "q5" -> "q6" [label="0-9"];
+  "q6" -> "q7" [label="0-9"];
+  "q7" -> "q8" [label="0-9"];
+}

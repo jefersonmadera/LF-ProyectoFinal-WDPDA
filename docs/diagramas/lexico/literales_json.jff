@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- AFD de literales true/false/null — generado por compiler/export.py -->
+<structure>
+	<type>fa</type>
+	<automaton>
+		<state id="0" name="q0">
+			<x>80.0</x>
+			<y>80.0</y>
+			<initial/>
+		</state>
+		<state id="1" name="t">
+			<x>250.0</x>
+			<y>120.0</y>
+		</state>
+		<state id="2" name="tr">
+			<x>420.0</x>
+			<y>80.0</y>
+		</state>
+		<state id="3" name="tru">
+			<x>590.0</x>
+			<y>120.0</y>
+		</state>
+		<state id="4" name="true">
+			<x>760.0</x>
+			<y>80.0</y>
+			<final/>
+		</state>
+		<state id="5" name="f">
+			<x>250.0</x>
+			<y>240.0</y>
+		</state>
+		<state id="6" name="fa">
+			<x>420.0</x>
+			<y>200.0</y>
+		</state>
+		<state id="7" name="fal">
+			<x>590.0</x>
+			<y>240.0</y>
+		</state>
+		<state id="8" name="fals">
+			<x>760.0</x>
+			<y>200.0</y>
+		</state>
+		<state id="9" name="false">
+			<x>930.0</x>
+			<y>120.0</y>
+			<final/>
+		</state>
+		<state id="10" name="n">
+			<x>250.0</x>
+			<y>360.0</y>
+		</state>
+		<state id="11" name="nu">
+			<x>420.0</x>
+			<y>320.0</y>
+		</state>
+		<state id="12" name="nul">
+			<x>590.0</x>
+			<y>360.0</y>
+		</state>
+		<state id="13" name="null">
+			<x>760.0</x>
+			<y>320.0</y>
+			<final/>
+		</state>
+		<transition>
+			<from>0</from>
+			<to>1</to>
+			<read>t</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>2</to>
+			<read>r</read>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>3</to>
+			<read>u</read>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>4</to>
+			<read>e</read>
+		</transition>
+		<transition>
+			<from>0</from>
+			<to>5</to>
+			<read>f</read>
+		</transition>
+		<transition>
+			<from>5</from>
+			<to>6</to>
+			<read>a</read>
+		</transition>
+		<transition>
+			<from>6</from>
+			<to>7</to>
+			<read>l</read>
+		</transition>
+		<transition>
+			<from>7</from>
+			<to>8</to>
+			<read>s</read>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>9</to>
+			<read>e</read>
+		</transition>
+		<transition>
+			<from>0</from>
+			<to>10</to>
+			<read>n</read>
+		</transition>
+		<transition>
+			<from>10</from>
+			<to>11</to>
+			<read>u</read>
+		</transition>
+		<transition>
+			<from>11</from>
+			<to>12</to>
+			<read>l</read>
+		</transition>
+		<transition>
+			<from>12</from>
+			<to>13</to>
+			<read>l</read>
+		</transition>
+	</automaton>
+</structure>

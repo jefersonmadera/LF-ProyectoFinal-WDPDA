@@ -1,0 +1,30 @@
+digraph "AFD de validación UTF-8 (clases de bytes)" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "ok";
+  "ok" [shape=doublecircle];
+  "c1" [shape=circle];
+  "c2" [shape=circle];
+  "c3" [shape=circle];
+  "e0" [shape=circle];
+  "ed" [shape=circle];
+  "f0" [shape=circle];
+  "f4" [shape=circle];
+  "ok" -> "ok" [label="A"];
+  "ok" -> "c1" [label="B"];
+  "ok" -> "c2" [label="C"];
+  "ok" -> "e0" [label="D"];
+  "ok" -> "ed" [label="E"];
+  "ok" -> "c3" [label="F"];
+  "ok" -> "f0" [label="G"];
+  "ok" -> "f4" [label="H"];
+  "c1" -> "ok" [label="x\ny\nz"];
+  "c2" -> "c1" [label="x\ny\nz"];
+  "c3" -> "c2" [label="x\ny\nz"];
+  "e0" -> "c1" [label="z"];
+  "ed" -> "c1" [label="x\ny"];
+  "f0" -> "c2" [label="y\nz"];
+  "f4" -> "c2" [label="x"];
+}

@@ -29,3 +29,11 @@ Thumbs.db
 
 # MVP (binario compilado en local, no se sube)
 avance_mvp/validator
+
+# Artefactos de compilación y ejecución
+build/
+runtime/rust/target/
+*.exe
+web/data/
+gmon.out
+.pytest_cache/

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Pedido de un microservicio de comercio (subconjunto XSD del proyecto) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="Sku">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z]{3}-[0-9]{4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Estado">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="creado"/>
+      <xs:enumeration value="pagado"/>
+      <xs:enumeration value="enviado"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="Item">
+    <xs:sequence>
+      <xs:element name="sku" type="Sku"/>
+      <xs:element name="cantidad">
+        <xs:simpleType>
+          <xs:restriction base="xs:integer">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="999"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="precio" type="xs:decimal"/>
+      <xs:element name="nota" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="linea" type="xs:positiveInteger" use="required"/>
+  </xs:complexType>
+  <xs:element name="pedido">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="id" type="xs:string"/>
+        <xs:element name="cliente">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="nombre">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="2"/>
+                    <xs:maxLength value="40"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:choice>
+                <xs:element name="correo" type="xs:string"/>
+                <xs:element name="telefono" type="xs:string"/>
+              </xs:choice>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="item" type="Item" maxOccurs="unbounded"/>
+        <xs:element name="estado" type="Estado"/>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

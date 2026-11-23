@@ -1,0 +1,16 @@
+{
+  "title": "Evento de microservicio",
+  "type": "object",
+  "properties": {
+    "version": { "const": 1 },
+    "tipo": { "enum": ["usuario.creado", "pago.aprobado"] },
+    "fecha": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$" },
+    "datos": {
+      "oneOf": [
+        { "type": "object", "properties": { "usuario": { "type": "string" }, "correo": { "type": "string" } }, "required": ["usuario", "correo"], "additionalProperties": false },
+        { "type": "object", "properties": { "pago": { "type": "string" }, "monto": { "type": "number", "minimum": 0 } }, "required": ["pago", "monto"], "additionalProperties": false }
+      ]
+    }
+  },
+  "required": ["version", "tipo", "fecha", "datos"]
+}

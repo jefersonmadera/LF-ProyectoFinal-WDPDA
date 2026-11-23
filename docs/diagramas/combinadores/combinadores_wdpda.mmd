@@ -1,0 +1,43 @@
+stateDiagram-v2
+    direction LR
+    s0 : V(n0)
+    s1 : R
+    s2 : F
+    s3 : ⊤ (cualquier JSON)
+    s4 : K1(n0)
+    s5 : C(n0,id)
+    s6 : K2(n0)
+    s7 : V(n1)
+    s8 : C(n0,forma)
+    s9 : V(n2)
+    s10 : C(n0,codigo)
+    s11 : V(n3)
+    s12 : C(n0,*)
+    s13 : N(n0)
+    [*] --> s0
+    s1 --> s2 : ε, Z0/Z0
+    s1 --> s3 : ε, λ/λ
+    s4 --> s5 : KEY(id), On0/On0
+    s6 --> s5 : KEY(id), On0/On0
+    s7 --> s3 : {, λ/λ | [, λ/λ
+    s7 --> s1 : STRING, λ/λ | INT, λ/λ | FRAC, λ/λ | TRUE, λ/λ | FALSE, λ…
+    s5 --> s7 : ∶, λ/λ
+    s4 --> s8 : KEY(forma), On0/On0
+    s6 --> s8 : KEY(forma), On0/On0
+    s9 --> s3 : {, λ/λ | [, λ/λ
+    s9 --> s1 : STRING, λ/λ | INT, λ/λ | FRAC, λ/λ | TRUE, λ/λ | FALSE, λ…
+    s8 --> s9 : ∶, λ/λ
+    s4 --> s10 : KEY(codigo), On0/On0
+    s6 --> s10 : KEY(codigo), On0/On0
+    s11 --> s3 : {, λ/λ | [, λ/λ
+    s11 --> s1 : STRING, λ/λ | INT, λ/λ | FRAC, λ/λ | TRUE, λ/λ | FALSE, λ…
+    s10 --> s11 : ∶, λ/λ
+    s4 --> s12 : KEY(*), On0/On0
+    s6 --> s12 : KEY(*), On0/On0
+    s12 --> s3 : ∶, λ/λ
+    s4 --> s1 : }, On0/λ
+    s13 --> s1 : }, On0/λ
+    s13 --> s6 : ,, λ/λ
+    s1 --> s13 : ε, On0/On0
+    s0 --> s4 : {, λ/On0
+    s2 --> [*]

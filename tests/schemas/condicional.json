@@ -1,0 +1,17 @@
+{
+  "title": "Documento de identidad (if/then/else y dependencias)",
+  "type": "object",
+  "properties": {
+    "pais": { "type": "string", "enum": ["CO", "EC", "PE", "US"] },
+    "cedula": { "type": "string", "pattern": "^[0-9]{6,10}$" },
+    "pasaporte": { "type": "string", "minLength": 6 },
+    "tarjeta": { "type": "string" },
+    "cvv": { "type": "string", "pattern": "^[0-9]{3,4}$" }
+  },
+  "required": ["pais"],
+  "if": { "properties": { "pais": { "const": "CO" } } },
+  "then": { "required": ["cedula"] },
+  "else": { "required": ["pasaporte"] },
+  "dependentRequired": { "tarjeta": ["cvv"] },
+  "dependentSchemas": { "cvv": { "required": ["tarjeta"] } }
+}
