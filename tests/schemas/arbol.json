@@ -1,0 +1,15 @@
+{
+  "title": "Árbol recursivo",
+  "$defs": {
+    "nodo": {
+      "type": "object",
+      "properties": {
+        "valor": { "type": "integer" },
+        "hijos": { "type": "array", "items": { "$ref": "#/$defs/nodo" }, "maxItems": 4 }
+      },
+      "required": ["valor"],
+      "additionalProperties": false
+    }
+  },
+  "$ref": "#/$defs/nodo"
+}

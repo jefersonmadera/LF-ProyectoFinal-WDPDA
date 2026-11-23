@@ -1,0 +1,28 @@
+digraph "AFD 0 (keys): ['valor', 'hijos']" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "q0";
+  "q0" [shape=circle];
+  "q1" [shape=circle];
+  "q2" [shape=circle];
+  "q3" [shape=circle];
+  "q4" [shape=circle];
+  "q5" [shape=circle];
+  "q6" [shape=circle];
+  "q7" [shape=circle];
+  "q8" [shape=circle];
+  "q9" [shape=doublecircle];
+  "q10" [shape=doublecircle];
+  "q0" -> "q1" [label="v"];
+  "q0" -> "q2" [label="h"];
+  "q1" -> "q3" [label="a"];
+  "q2" -> "q4" [label="i"];
+  "q3" -> "q5" [label="l"];
+  "q4" -> "q6" [label="j"];
+  "q5" -> "q7" [label="o"];
+  "q6" -> "q8" [label="o"];
+  "q7" -> "q9" [label="r"];
+  "q8" -> "q10" [label="s"];
+}

@@ -1,0 +1,1 @@
+Símbolos de entrada (tokens): {={, }=}, [=[, ]=], :=:, ,=,, s=STRING, i=INT, d=FRAC, t=TRUE, f=FALSE, u=NULL, k=KEY(*)

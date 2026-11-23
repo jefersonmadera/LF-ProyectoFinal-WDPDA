@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- AFD 1 (pattern): ^[a-z0-9._-]+@[a-z0-9-]+\.[a-z]{2,6}$ — generado por compiler/export.py -->
+<structure>
+	<type>fa</type>
+	<automaton>
+		<state id="0" name="q0">
+			<x>80.0</x>
+			<y>80.0</y>
+			<initial/>
+		</state>
+		<state id="1" name="q1">
+			<x>250.0</x>
+			<y>120.0</y>
+		</state>
+		<state id="2" name="q2">
+			<x>420.0</x>
+			<y>80.0</y>
+		</state>
+		<state id="3" name="q3">
+			<x>590.0</x>
+			<y>120.0</y>
+		</state>
+		<state id="4" name="q4">
+			<x>760.0</x>
+			<y>80.0</y>
+		</state>
+		<state id="5" name="q5">
+			<x>930.0</x>
+			<y>120.0</y>
+		</state>
+		<state id="6" name="q6">
+			<x>1100.0</x>
+			<y>80.0</y>
+			<final/>
+		</state>
+		<state id="7" name="q7">
+			<x>1270.0</x>
+			<y>120.0</y>
+			<final/>
+		</state>
+		<state id="8" name="q8">
+			<x>1440.0</x>
+			<y>80.0</y>
+			<final/>
+		</state>
+		<state id="9" name="q9">
+			<x>1610.0</x>
+			<y>120.0</y>
+			<final/>
+		</state>
+		<state id="10" name="q10">
+			<x>1780.0</x>
+			<y>80.0</y>
+			<final/>
+		</state>
+		<transition>
+			<from>0</from>
+			<to>1</to>
+			<read>--.</read>
+		</transition>
+		<transition>
+			<from>0</from>
+			<to>1</to>
+			<read>0-9</read>
+		</transition>
+		<transition>
+			<from>0</from>
+			<to>1</to>
+			<read>_</read>
+		</transition>
+		<transition>
+			<from>0</from>
+			<to>1</to>
+			<read>a-z</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>1</to>
+			<read>--.</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>1</to>
+			<read>0-9</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>1</to>
+			<read>_</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>1</to>
+			<read>a-z</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>2</to>
+			<read>@</read>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>3</to>
+			<read>-</read>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>3</to>
+			<read>0-9</read>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>3</to>
+			<read>a-z</read>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>3</to>
+			<read>-</read>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>3</to>
+			<read>0-9</read>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>3</to>
+			<read>a-z</read>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>4</to>
+			<read>.</read>
+		</transition>
+		<transition>
+			<from>4</from>
+			<to>5</to>
+			<read>a-z</read>
+		</transition>
+		<transition>
+			<from>5</from>
+			<to>6</to>
+			<read>a-z</read>
+		</transition>
+		<transition>
+			<from>6</from>
+			<to>7</to>
+			<read>a-z</read>
+		</transition>
+		<transition>
+			<from>7</from>
+			<to>8</to>
+			<read>a-z</read>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>9</to>
+			<read>a-z</read>
+		</transition>
+		<transition>
+			<from>9</from>
+			<to>10</to>
+			<read>a-z</read>
+		</transition>
+	</automaton>
+</structure>

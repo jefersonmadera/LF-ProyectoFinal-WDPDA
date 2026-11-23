@@ -1,136 +1,164 @@
 # Proyecto Final — Lenguajes Formales y Autómatas 2026-2 (UPTC Sogamoso)
 
-## Validación en Tiempo Real de Esquemas JSON/XML mediante Autómatas de Pila Ponderados
+## Validación en tiempo real de esquemas JSON/XML mediante autómatas de pila ponderados
 
-Compilador que traduce un esquema JSON (JSON Schema, con extensión a un subconjunto de XSD) a un autómata de pila determinista ponderado (WDPDA) y emite un validador nativo en C y Rust que consume los bytes del payload en una sola pasada, sin construir un AST ni reservar memoria dinámica.
+Compilador que traduce un esquema **JSON Schema 2020-12** (subconjunto) o
+**XSD** (subconjunto) a un **autómata de pila determinista ponderado
+(WDPDA)** y emite un validador nativo en **C** y **Rust**. El validador
+consume los bytes del payload en una sola pasada, en streaming, sin
+construir un AST y sin reservar memoria dinámica.
 
 **Integrantes:** Jeferson Santiago Madera Gaona y Sergio Alexander Gómez Zapata
 **Curso:** Lenguajes Formales y Autómatas 2026-2 — Prof. Marco Suárez (UPTC)
-**Estado:** Semana 1 completada (26 oct – 1 nov 2026) y Semana 2
-adelantada al 29 de octubre de 2026 — Fase 1 léxica: tokenizador
-JSON/XML escrito a mano en Python con DFA, UTF-8 y streaming por
-bloques, esqueleto del runtime en C y Rust
-(`init`/`feed`/`finish`, pila fija, sin asignación dinámica),
-13 pruebas (incluida equivalencia por bloques de 1 y 7 bytes) y
-bench. Detalle en `docs/fase1-lexico.md`. Fase 2: parser LL(1) por
-descenso recursivo y primera rebanada vertical (esquema → parser →
-validación en C → error con ruta), con el prototipo `avance_mvp/`
-corregido: 15/15 pruebas y compilación limpia con `-Werror`.
-Detalle en `docs/fase2-parser.md`. Sin decisiones de alcance
-cerradas con el profesor todavía (ver `docs/decisiones.md`).
-Sergio (@sergiomezzz) ya aceptó la invitación y aportó el
-`avance_mvp/` inicial; su revisión de la Semana 1 sigue pendiente
-de confirmación explícita.
+
+### Estado
+
+Las siete fases están implementadas y probadas:
+
+| Fase | Qué hay | Dónde |
+| --- | --- | --- |
+| 1. Léxico | AFD UTF-8, JSON y XML en streaming; trie de palabras clave del esquema | `compiler/utf8.py`, `json_lexer.py`, `xml_lexer.py` |
+| 2. Sintaxis | 4 gramáticas LL(1) (JSON, XML, metalenguaje, regex); FIRST/FOLLOW, tabla y árbol de derivación | `compiler/grammar.py`, `grammars.py` |
+| 3. Semántica | tabla de símbolos, `$ref`/`$defs`, ciclos no productivos (Tarjan), meta-esquema, clasificación (a)/(b)/(c) | `compiler/schema.py` |
+| 4. WDPDA | definición formal, pesos tropicales, δ explícito, determinismo verificado, minimización (Moore), regex → AFD, producto de VPA | `compiler/wdpda.py`, `formal.py`, `automata.py` |
+| 5. Codegen | C y Rust (tablas `const`), API C-ABI, generador de payloads JSON/XML | `compiler/codegen_c.py`, `codegen_rust.py`, `payload_gen.py` |
+| 6. Runtime | streaming, JSON Pointer y byte, límites (profundidad, tamaño, tiempo), MB/s, ciclos/byte, 0 asignaciones | `runtime/c/`, `runtime/rust/`, `bench/` |
+| 7. Web | FastAPI (REST + WebSocket), SPA, sandbox, MongoDB, Docker, guía de despliegue en Azure/AWS | `web/`, `Dockerfile`, `docker-compose.yml` |
+| XSD | Glushkov + UPA, `xs:date` con años bisiestos, mitigación XXE | `compiler/xsd.py`, `xml_engine.py`, `runtime/c/wdpda_xml.c` |
+
+**Resultados clave:**
+
+- 104 pruebas automáticas en verde.
+- 6000 payloads JSON contra `jsonschema` y 1200 documentos XML contra
+  `lxml`: **0 diferencias**.
+- Python, C y Rust dan resultados idénticos en 2280 payloads: estado,
+  peso y errores con su ruta, incluso en bloques de 1 byte.
+- Validador C: **76 MB/s, 34 ciclos/byte, 0 asignaciones y 1,1 MB
+  fijos**, frente a 23 MB/s y 78 MB de una línea base DOM en C con las
+  mismas reglas.
+
+Toda la documentación, incluido el **informe final**, la **guía de
+sustentación** y los **diagramas en JFLAP**, está en
+[`docs/`](docs/README.md).
+
+Pendiente de los integrantes:
+
+- aprobar por escrito el IR y la API propuestos (`docs/decisiones.md`);
+- elegir la nube y desplegar con sus cuentas: los comandos están en
+  `docs/fase7-web.md` §6.
 
 ## Estructura
 
-- `compiler/` — Fases 1–4: lexer, parser LL(1), análisis semántico, construcción del WDPDA y emisión del IR.
-- `runtime/c/` — Validador generado en C.
-- `runtime/rust/` — Validador generado en Rust.
-- `web/` — Backend (API REST + WebSocket) y frontend: editor de esquema, compilación, visualización del autómata y panel de métricas.
-- `tests/` — Casos válidos, inválidos, malformados, fuera del DPDA puro, de bombeo y extremos.
-- `bench/` — Scripts de medición reproducibles (misma máquina, calentamiento, mediana).
-- `docs/` — Documentación técnica, decisiones y plan de trabajo.
-- `avance_mvp/` — prototipo de avance con esquema mínimo, validación en C, ejemplos de ejecución y pruebas (`avance_mvp/tests/run_tests.sh`).
+- `compiler/` — Fases 1–5: lexers, gramáticas y parser LL(1), análisis
+  semántico, construcción del WDPDA e IR, δ formal, generadores de
+  código y de payloads, exportación de diagramas, CLI (`python -m
+  compiler`).
+- `runtime/c/` — runtime C del validador (JSON `wdpda_rt.*`, XML
+  `wdpda_xml.*`), CLI y línea base DOM del benchmark. `wdpda.c` y
+  `main.c` son el esqueleto histórico de la Semana 1.
+- `runtime/rust/` — runtime Rust (`src/wdpda_rt.rs`) y el esqueleto de
+  la Semana 1 (`src/lib.rs`).
+- `web/` — backend (API REST + WebSocket, sandbox, NoSQL) y frontend.
+- `tests/` — pruebas unitarias, diferenciales y cruzadas; esquemas de
+  prueba JSON (`schemas/`) y XSD (`schemas_xsd/`).
+- `bench/` — benchmark reproducible y resultados (`RESULTADOS.md`).
+- `docs/` — documentación técnica, informe, sustentación y diagramas.
+- `avance_mvp/` — prototipo del avance (Semana 2), conservado como historia.
 
-## API del validador (por acordar y congelar en Semana 0)
+## Cómo correrlo
 
-Propuesta inicial, pendiente de acuerdo escrito entre ambos integrantes:
+Requisitos: Python 3.12 o superior, gcc (en Windows, MSYS2 UCRT64), Rust
+(opcional) y Docker (opcional).
 
-- `init(ctx, pila, profundidad)`
-- `feed(ctx, bytes, n)` — streaming por bloques, mismo resultado con bloques de 1 byte que con el payload completo.
-- `finish(ctx, &resultado)` — resultado con ruta JSON Pointer y posición en bytes en caso de error.
+```powershell
+pip install -r requirements.txt
+```
+
+Todas las pruebas:
+
+```powershell
+python -m pytest tests -q
+```
+
+Compilar un esquema a C y Rust (el IR y los binarios quedan en `build/`):
+
+```powershell
+python -m compiler compile tests\schemas\persona.json --lang c,rust
+```
+
+Validar un payload con el motor de referencia (traza paso a paso) o con
+el C generado:
+
+```powershell
+python -m compiler validate tests\schemas\persona.json payload.json --trace
+```
+
+```powershell
+python -m compiler validate tests\schemas\persona.json payload.json --engine c
+```
+
+Diagramas (JFLAP, SVG, DOT, Mermaid) de un esquema y del léxico:
+
+```powershell
+python -m compiler diagrams tests\schemas\persona.json
+```
+
+```powershell
+python -m compiler lexer-diagrams
+```
+
+Gramáticas con FIRST/FOLLOW y tabla LL(1):
+
+```powershell
+python -m compiler grammar json
+```
+
+Benchmark (WDPDA C y Rust frente a DOM en C y `jsonschema`, más bombeo):
+
+```powershell
+python bench\bench.py --rust
+```
+
+Aplicación web, con los casos de prueba cargados en el almacén NoSQL:
+
+```powershell
+python -m web.backend.seed
+```
+
+```powershell
+python -m uvicorn web.backend.app:app --port 8000
+```
+
+Luego abrir <http://localhost:8000>. Con MongoDB en contenedores:
+
+```powershell
+docker compose up --build
+```
+
+> **Git Bash en Windows:** antes de usar `gcc` hay que ejecutar
+> `export PATH=/c/msys64/ucrt64/bin:$PATH`. Si no, `/mingw64/bin` carga
+> DLL incompatibles con el `cc1` de MSYS2 y `gcc` falla sin mensaje. En
+> PowerShell no hace falta, y el compilador lo ajusta solo cuando invoca
+> `gcc`.
 
 ## Reglas de trabajo
 
-- Ningún cambio entra a la rama principal sin revisión del otro integrante (pull request).
-- Historial de git con aportes de ambos durante todo el proyecto, no un solo commit al final.
-- Cada viernes, 30 minutos: cada uno explica al otro lo que hizo esa semana, sin mirar el código.
+- Ningún cambio entra a la rama principal sin revisión del otro
+  integrante (pull request).
+- El historial de git debe mostrar aportes de ambos durante todo el
+  proyecto, no un solo commit al final.
+- Cada viernes, 30 minutos: cada uno le explica al otro lo que hizo esa
+  semana, sin mirar el código.
 - Las cifras del informe deben coincidir con la demo.
 
-## Cómo correrlo en local (Semana 1)
+## Avance MVP (Semana 2, histórico)
 
-```bash
-python3 -m unittest discover -s tests -v
-python3 bench/bench.py --size-kb 64 --reps 3
-gcc -std=c11 -Wall -Wextra -Werror -O2 -o /tmp/wdpda_cli runtime/c/wdpda.c runtime/c/main.c
-cargo test --manifest-path runtime/rust/Cargo.toml
-```
-
-## Cómo ejecutar el avance MVP en cualquier PC con GCC
-
-Este prototipo no requiere dependencias adicionales. Solo necesitas un compilador C compatible con `gcc` o `clang`.
-
-### 1) Compilar el validador
-
-```bash
+```powershell
 gcc -std=c11 -Wall -Wextra -Werror -O2 -o avance_mvp/validator avance_mvp/validator.c avance_mvp/schema.c
 ```
 
-### 2) Ejecutar con un payload válido
-
-```bash
-./avance_mvp/validator avance_mvp/example_payload_valid.json
-```
-
-Salida esperada:
-
-```text
-VALIDO: OK
-```
-
-### 3) Ejecutar con un payload inválido
-
-```bash
-./avance_mvp/validator avance_mvp/example_payload_invalid.json
-```
-
-Salida esperada:
-
-```text
-INVALIDO: Field 'edad' expected integer but found string (/edad)
-```
-
-### 3b) Correr las pruebas del MVP
-
-```bash
+```powershell
 bash avance_mvp/tests/run_tests.sh
 ```
 
-Salida esperada al final:
-
-```text
-== resultado: 15 pasaron, 0 fallaron ==
-```
-
-Códigos de salida del validador: 0 válido, 2 inválido, 1 error de
-uso, de archivo o de esquema. El segundo argumento es opcional y
-permite usar otro esquema: `./avance_mvp/validator payload.json
-otro_esquema.json`. Hay que correrlo desde la raíz del repo, porque
-el esquema por defecto se busca como `avance_mvp/example_schema.json`.
-
-### 4) Si no tienes gcc instalado
-
-- Linux (Debian/Ubuntu):
-  ```bash
-  sudo apt update
-  sudo apt install build-essential
-  ```
-- macOS:
-  ```bash
-  xcode-select --install
-  ```
-- Windows:
-  - usar WSL2 con Ubuntu, o
-  - instalar MinGW/MinGW-w64 y ejecutar `gcc` desde la terminal.
-
-Este avance sirve como base de demostración para mostrar que el proyecto ya tiene:
-- un subconjunto formal del esquema,
-- validación estructural en C con parser real (no búsqueda de texto),
-- errores con ruta JSON Pointer y posición en bytes,
-- y ejemplos ejecutables válidos e inválidos.
-
-_Límites honestos: solo nivel superior del objeto, solo JSON, y
-validación directa todavía sin WDPDA. El siguiente paso es la
-validación anidada, la construcción del WDPDA y la unión con el
-runtime en streaming. Ver `docs/fase2-parser.md`._
+Las pruebas del MVP deben dar 15/15. Detalle en `docs/fase2-parser.md`.

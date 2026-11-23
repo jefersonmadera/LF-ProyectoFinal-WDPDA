@@ -1,0 +1,13 @@
+# Aplicación web y compilador (el compilador no usa librerías de parseo:
+# lexers, parsers LL(1), autómatas y codegen están escritos a mano).
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pymongo==4.10.1
+# Solo para la línea base del benchmark y las pruebas diferenciales:
+jsonschema==4.23.0
+lxml==5.3.0
+# Solo para generar los diagramas SVG de la documentación:
+matplotlib==3.9.3
+networkx==3.4.2
+# Pruebas
+pytest==8.3.4

@@ -1,29 +1,65 @@
-# Representación intermedia (IR) del autómata — BORRADOR Semana 0
+# Representación intermedia (IR) del WDPDA — versión 1 (congelada)
 
-> Borrador para acordar por escrito entre Jeferson y Sergio antes de escribir código de las fases 1–4. Nada de esto está congelado todavía.
+> Estado: **congelado** (versión 1). Lo producen `compiler/wdpda.py`
+> (JSON Schema) y `compiler/xsd.py` (XSD). Lo consumen el generador C, el
+> generador Rust, los motores Python, la web y el informe. Ver un IR
+> real: `python -m compiler ir tests/schemas/persona.json`.
 
 ## Principio
 
-Una única representación del autómata en JSON. El backend C, el backend Rust, el visualizador web y el informe leen el mismo IR, así que lo que se dibuja es exactamente lo que se ejecuta.
+Una sola representación del autómata en JSON: lo que se dibuja es lo que
+se ejecuta.
 
-## Definición formal (pendiente de redactar en el informe)
+## Campos de nivel superior
 
-WDPDA: M = (Q, Σ, Γ, δ, q₀, Z₀, F, w), con pesos en el semianillo tropical (ℝ ∪ {+∞}, min, +, +∞, 0).
+| Campo | Tipo | Descripción |
+| --- | --- | --- |
+| `ir_version` | int | 1 |
+| `format` | `"json"` \| `"xml"` | familia de esquema |
+| `root` | int | nodo (o elemento, en XML) raíz; `-1` = acepta todo |
+| `nodes` | lista | subautómatas (nodos del esquema) ya minimizados |
+| `dfas` | lista | AFD densos (claves, enum, pattern, nombres, contenido XSD) |
+| `consts` | lista | constantes decimales exactas `{lexeme, neg, digits, exp}` |
+| `limits` | objeto | `max_depth`, `max_lanes`, `lane_pool`, `max_errors`, `max_patterns`, `unique_cap`, `path_bytes` |
+| `flags` | objeto | `uses_unique` |
+| `classification` | lista | `{keyword, category, strategy, count, pointers}` (Fase 3) |
+| `formal` | objeto | resumen de δ: `states`, `transitions`, `stack_symbols`, `deterministic`, `determinism_conflicts`, `product_nodes`… |
+| `stats` | objeto | nodos antes/después de minimizar, AFD y sus estados antes/después, ancho máximo de carriles |
+| `warnings` | lista | avisos del análisis semántico |
+| `elements`, `roots`, `root_names_dfa`, `upa` | (solo XML) | declaraciones de elemento y verificación UPA |
 
-- El peso estima el costo de cada transición para ordenar comprobaciones (fallo temprano) y acumula el número de violaciones para reportar la conformidad del payload.
-- Marco de pila por nivel de anidamiento: (id de nodo del esquema, estado de retorno, registros locales) → memoria O(d) en profundidad d, tiempo O(n) en bytes n.
+## Nodo (`nodes[i]`)
 
-## Campos mínimos que debe tener el IR (propuesta)
+| Campo | Significado |
+| --- | --- |
+| `id`, `ptr`, `desc`, `title` | identidad y JSON Pointer en el esquema |
+| `false` | esquema `false` |
+| `types` | máscara: null=1, boolean=2, integer=4, number=8, string=16, array=32, object=64 (`number` incluye `integer`) |
+| `enum` | `{strings: id de AFD o -1, values, nums: [id const], lits: true=1 false=2 null=4}` o `null` |
+| `str` | `{min_len, max_len, patterns: [id AFD], pattern_src}` o `null` |
+| `num` | `{checks: [[op, id const], …]}` con op ∈ ge, gt, le, lt, mul, **en orden de costo** |
+| `obj` | `{keys, keys_dfa, key_child, key_declared, required (máscara), patterns: [[AFD, hijo]], additional (hijo, -1 = cualquiera, -2 = prohibido), min_props, max_props, dep_required: [[bit, máscara]], dep_schemas: [[bit, hijo]]}` |
+| `arr` | `{prefix, items (-2 = items:false), contains (-3 = no hay), min_contains, max_contains, min_items, max_items, unique}` |
+| `all_of`, `any_of`, `one_of` | listas de hijos (producto) |
+| `not`, `if`, `then`, `else` | hijos o `-1` |
+| `checks` | `[{cost, check}]`: orden de evaluación por costo estático |
+| `xsd` | (XML) tipo léxico: 0 string, 1 boolean, 2 integer, 3 decimal, 4 double |
 
-- `schema_id` y versión del IR.
-- `states` (Q), `alphabet` (Σ, bytes UTF-8 / tokens), `stack_alphabet` (Γ).
-- `initial_state` (q₀), `initial_stack_symbol` (Z₀), `accepting_states` (F).
-- `transitions` (δ): cada una con estado origen, símbolo de entrada, símbolo a desapilar, estado destino, símbolos a apilar y peso w.
-- `registers`: máscaras de `required`, contadores acotados (minItems/maxItems, etc.) por nodo.
-- Metadatos de determinismo: resultado del verificador automático de determinismo de δ.
+Referencias a hijos: entero ≥ 0 = nodo; `-1` = cualquier valor (⊤, no
+crea carril); `-2` = prohibido.
 
-## Lo que falta acordar
+## AFD (`dfas[i]`)
 
-- Nombres exactos de campos y tipos (¿enteros para ids de nodo? ¿cadenas para símbolos?).
-- Cómo se representan los subautómatas por nodo del esquema y el producto para allOf/anyOf/oneOf.
-- Límites documentados: profundidad máxima de pila, propiedades obligatorias por objeto (p. ej. máscara de 64 bits), tope de ramas del producto.
+`{id, kind (keys|enum|pattern|names|attrs|content), source, states,
+states_before_min, transitions, classes[256], ncls, table[states·ncls],
+accept[states], symbols?}`. `table[s·ncls + classes[b]]` = siguiente
+estado o −1 (muerto). `accept[s]` = etiqueta (índice de clave/valor, 0 en
+`pattern`) o −1.
+
+## API del runtime (acordada)
+
+`init(ctx, esquema, profundidad_max, fail_fast)` · `feed(ctx, bytes, n)`
+· `finish(ctx)` → estado `VALID | INVALID | MALFORMED | UTF8 | DEPTH |
+LIMIT | SIZE | TIME`, peso tropical y errores con JSON Pointer y byte.
+Igual en C (`wd_*`, `wx_*` para XML), Rust (`Ctx::init/feed/finish`) y
+Python (`Validator.feed/finish`).

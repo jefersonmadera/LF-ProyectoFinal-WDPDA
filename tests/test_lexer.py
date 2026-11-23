@@ -8,6 +8,7 @@ multibyte o un número queda partido entre dos bloques.
 
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -55,6 +56,9 @@ def chunked(tokenizer_cls, data, chunk):
 class TestJsonLexer(unittest.TestCase):
     def test_valid_token_kinds(self):
         toks = JsonTokenizer().tokenize(VALID[0])
+        print("\nTokens del JSON de prueba:")
+        for token in toks:
+            print(token)
         kinds = [t.kind for t in toks]
         self.assertEqual(kinds[0], "{")
         self.assertIn("STRING", kinds)
@@ -131,15 +135,20 @@ class TestCRuntime(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.tmp = Path("/tmp/wdpda_test_cli")
+        cls.tmpdir = tempfile.TemporaryDirectory()
+        cls.tmp = Path(cls.tmpdir.name) / "wdpda_test_cli"
         root = Path(__file__).resolve().parent.parent / "runtime" / "c"
         subprocess.run(
             ["gcc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-O2",
              "-o", str(cls.tmp), str(root / "wdpda.c"), str(root / "main.c")],
             check=True)
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmpdir.cleanup()
+
     def run_cli(self, data: bytes, chunk: int, max_depth: int = 1024):
-        path = Path("/tmp/wdpda_test_input.json")
+        path = Path(self.tmpdir.name) / "wdpda_test_input.json"
         path.write_bytes(data)
         proc = subprocess.run(
             [str(self.tmp), str(path), str(chunk), str(max_depth)],

@@ -1,0 +1,37 @@
+digraph "DPDA sintáctico de JSON" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "V(⊤)";
+  "V(⊤)" [shape=circle];
+  "R" [shape=circle];
+  "F" [shape=doublecircle];
+  "K1(⊤)" [shape=circle];
+  "C(⊤,*)" [shape=circle];
+  "K2(⊤)" [shape=circle];
+  "A1(⊤)" [shape=circle];
+  "N(⊤)" [shape=circle];
+  "A2(⊤)" [shape=circle];
+  "M(⊤)" [shape=circle];
+  "R" -> "F" [label="ε,Z0/Z0"];
+  "K1(⊤)" -> "C(⊤,*)" [label="KEY(*),λ/λ"];
+  "K2(⊤)" -> "C(⊤,*)" [label="KEY(*),λ/λ"];
+  "V(⊤)" -> "K1(⊤)" [label="{,λ/O⊤"];
+  "V(⊤)" -> "A1(⊤)" [label="[,λ/A⊤"];
+  "V(⊤)" -> "R" [label="STRING,λ/λ\nINT,λ/λ\nFRAC,λ/λ\nTRUE,λ/λ\nFALSE,λ/λ\nNULL,λ/λ"];
+  "C(⊤,*)" -> "V(⊤)" [label=":,λ/λ"];
+  "K1(⊤)" -> "R" [label="},O⊤/λ"];
+  "N(⊤)" -> "R" [label="},O⊤/λ"];
+  "N(⊤)" -> "K2(⊤)" [label=",,λ/λ"];
+  "R" -> "N(⊤)" [label="ε,O⊤/O⊤"];
+  "A1(⊤)" -> "K1(⊤)" [label="{,λ/O⊤"];
+  "A1(⊤)" -> "A1(⊤)" [label="[,λ/A⊤"];
+  "A1(⊤)" -> "R" [label="STRING,λ/λ\nINT,λ/λ\nFRAC,λ/λ\nTRUE,λ/λ\nFALSE,λ/λ\nNULL,λ/λ\n…"];
+  "A2(⊤)" -> "K1(⊤)" [label="{,λ/O⊤"];
+  "A2(⊤)" -> "A1(⊤)" [label="[,λ/A⊤"];
+  "A2(⊤)" -> "R" [label="STRING,λ/λ\nINT,λ/λ\nFRAC,λ/λ\nTRUE,λ/λ\nFALSE,λ/λ\nNULL,λ/λ"];
+  "M(⊤)" -> "R" [label="],A⊤/λ"];
+  "M(⊤)" -> "A2(⊤)" [label=",,λ/λ"];
+  "R" -> "M(⊤)" [label="ε,A⊤/A⊤"];
+}

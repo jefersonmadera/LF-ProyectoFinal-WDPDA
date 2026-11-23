@@ -1,0 +1,30 @@
+digraph "AFD 1 (pattern): ^[a-z0-9._-]+@[a-z0-9-]+\.[a-z]{2,6}$" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "q0";
+  "q0" [shape=circle];
+  "q1" [shape=circle];
+  "q2" [shape=circle];
+  "q3" [shape=circle];
+  "q4" [shape=circle];
+  "q5" [shape=circle];
+  "q6" [shape=doublecircle];
+  "q7" [shape=doublecircle];
+  "q8" [shape=doublecircle];
+  "q9" [shape=doublecircle];
+  "q10" [shape=doublecircle];
+  "q0" -> "q1" [label="--.,0-9,_,a-z"];
+  "q1" -> "q1" [label="--.,0-9,_,a-z"];
+  "q1" -> "q2" [label="@"];
+  "q2" -> "q3" [label="-,0-9,a-z"];
+  "q3" -> "q3" [label="-,0-9,a-z"];
+  "q3" -> "q4" [label="."];
+  "q4" -> "q5" [label="a-z"];
+  "q5" -> "q6" [label="a-z"];
+  "q6" -> "q7" [label="a-z"];
+  "q7" -> "q8" [label="a-z"];
+  "q8" -> "q9" [label="a-z"];
+  "q9" -> "q10" [label="a-z"];
+}

@@ -1,0 +1,26 @@
+digraph "AFD 1 (keys): ['tipo', 'radio']" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "q0";
+  "q0" [shape=circle];
+  "q1" [shape=circle];
+  "q2" [shape=circle];
+  "q3" [shape=circle];
+  "q4" [shape=circle];
+  "q5" [shape=circle];
+  "q6" [shape=circle];
+  "q7" [shape=doublecircle];
+  "q8" [shape=circle];
+  "q9" [shape=doublecircle];
+  "q0" -> "q1" [label="t"];
+  "q0" -> "q2" [label="r"];
+  "q1" -> "q3" [label="i"];
+  "q2" -> "q4" [label="a"];
+  "q3" -> "q5" [label="p"];
+  "q4" -> "q6" [label="d"];
+  "q5" -> "q7" [label="o"];
+  "q6" -> "q8" [label="i"];
+  "q8" -> "q9" [label="o"];
+}

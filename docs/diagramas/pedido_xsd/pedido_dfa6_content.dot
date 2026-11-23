@@ -1,0 +1,16 @@
+digraph "AFD 6 (content): (sku cantidad precio nota?)" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "q0";
+  "q0" [shape=circle];
+  "q1" [shape=circle];
+  "q2" [shape=circle];
+  "q3" [shape=doublecircle];
+  "q4" [shape=doublecircle];
+  "q0" -> "q1" [label="sku"];
+  "q1" -> "q2" [label="cantidad"];
+  "q2" -> "q3" [label="precio"];
+  "q3" -> "q4" [label="nota"];
+}

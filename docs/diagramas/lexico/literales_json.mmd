@@ -1,0 +1,33 @@
+stateDiagram-v2
+    direction LR
+    s0 : q0
+    s1 : t
+    s2 : tr
+    s3 : tru
+    s4 : true
+    s5 : f
+    s6 : fa
+    s7 : fal
+    s8 : fals
+    s9 : false
+    s10 : n
+    s11 : nu
+    s12 : nul
+    s13 : null
+    [*] --> s0
+    s0 --> s1 : t
+    s1 --> s2 : r
+    s2 --> s3 : u
+    s3 --> s4 : e
+    s0 --> s5 : f
+    s5 --> s6 : a
+    s6 --> s7 : l
+    s7 --> s8 : s
+    s8 --> s9 : e
+    s0 --> s10 : n
+    s10 --> s11 : u
+    s11 --> s12 : l
+    s12 --> s13 : l
+    s13 --> [*]
+    s9 --> [*]
+    s4 --> [*]

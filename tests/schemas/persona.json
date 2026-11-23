@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Persona",
+  "type": "object",
+  "properties": {
+    "nombre": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "edad": { "type": "integer", "minimum": 0, "maximum": 130 },
+    "correo": { "type": "string", "pattern": "^[a-z0-9._-]+@[a-z0-9-]+\\.[a-z]{2,6}$" },
+    "rol": { "enum": ["estudiante", "docente", "admin"] },
+    "activo": { "type": "boolean" }
+  },
+  "required": ["nombre", "edad", "correo"],
+  "additionalProperties": false
+}

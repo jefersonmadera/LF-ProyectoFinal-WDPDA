@@ -1,0 +1,25 @@
+digraph "AFD de cadena JSON (alfabeto reducido)" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "q0";
+  "q0" [shape=circle];
+  "dentro" [shape=circle];
+  "escape" [shape=circle];
+  "u1" [shape=circle];
+  "u2" [shape=circle];
+  "u3" [shape=circle];
+  "u4" [shape=circle];
+  "fin" [shape=doublecircle];
+  "q0" -> "dentro" [label="\""];
+  "dentro" -> "dentro" [label="a\nb\nc\nx\ny\nz\n…"];
+  "dentro" -> "escape" [label="\\"];
+  "dentro" -> "fin" [label="\""];
+  "escape" -> "dentro" [label="\"\n\\\n/\nb\nf\nn\n…"];
+  "escape" -> "u1" [label="u"];
+  "u1" -> "u2" [label="0\n1\n2\n3\n4\n5\n…"];
+  "u2" -> "u3" [label="0\n1\n2\n3\n4\n5\n…"];
+  "u3" -> "u4" [label="0\n1\n2\n3\n4\n5\n…"];
+  "u4" -> "dentro" [label="0\n1\n2\n3\n4\n5\n…"];
+}

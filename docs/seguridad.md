@@ -1,0 +1,17 @@
+# Vulnerabilidades detectadas y mitigadas
+
+| # | Vulnerabilidad | Dónde aparece | Mitigación en este proyecto | Verificado en |
+| --- | --- | --- | --- | --- |
+| 1 | **ReDoS** (retroceso exponencial en `pattern`) | validadores con motores de regex con retroceso: `(a+)+$` con `aaaa…!` tarda `O(2ⁿ)` | `pattern` se compila a un **AFD**: validar es `O(n)` sin retroceso, por construcción. Se rechazan las retrorreferencias y el *lookaround* (no son regulares). El riesgo pasa a la compilación (determinización exponencial), acotada con un **tope de 4096 estados** y un error explícito. | `test_minimization_and_explosion`; `(a\|b)*a(a\|b){14}` se rechaza |
+| 2 | **Desbordamiento de pila por anidamiento** (`[[[[…`) | parsers recursivos (cada nivel consume pila del hilo) | La pila del WDPDA es un **arreglo fijo** dentro del contexto (sin recursión del lenguaje anfitrión), con profundidad máxima configurable (256 por defecto) y resultado `DEPTH`. | `test_pumping_linear_time_and_stack`, caso `extremo-profundidad` |
+| 3 | **XXE** (entidades externas: lectura de archivos, SSRF) | parsers XML con DTD habilitada | `<!DOCTYPE` se **rechaza en el lexer**; no se procesa ninguna DTD. | `test_xml_malformed` |
+| 4 | **Expansión de entidades** (*billion laughs*) | DTD con entidades recursivas | Sin DTD no hay entidades definibles. Solo las 5 predefinidas y las referencias de carácter; `&x;` desconocida es MALFORMED. Nada se expande. | caso `extremo-billion-laughs` |
+| 5 | **`$ref` cíclicos** (bucle infinito o recursión infinita al compilar o validar) | resolución ingenua de referencias | Tabla de símbolos más **Tarjan** sobre las aristas no consumidoras: los ciclos no productivos son error de compilación. Los ciclos productivos usan la pila (acotada). | `test_semantic_errors` |
+| 6 | **`$ref` externos** (SSRF, lectura de URLs arbitrarias) | validadores que descargan esquemas | Solo referencias locales (`#…`); el compilador no hace red. | `test_semantic_errors` |
+| 7 | **Inyección en el código generado** | generadores que interpolan texto del esquema en código | Solo se emiten **datos**; las cadenas se escapan (octal para no imprimibles y `?`, que evita trigrafos). | revisión de `codegen_c.c_str` |
+| 8 | **Agotamiento de memoria** (payload gigante, DOM) | validadores basados en AST/DOM (≈ 10 B por B de entrada en nuestra línea base) | Una pasada con **memoria constante** (`sizeof(wd_ctx_t)`) y 0 asignaciones; `--max-bytes`; streaming por bloques. | `bench/RESULTADOS.md`, `test_limits_size_and_time` |
+| 9 | **Tiempo excesivo** | entradas patológicas | `O(n)` garantizado y `--timeout-ms`. | CLI |
+| 10 | **Explosión del producto** (`anyOf` anidados) | determinización de combinadores | Ancho de carriles calculado en compilación (`max_lanes`), con tope en ejecución y resultado `LIMIT`. | `wdpda.py::_lane_widths` |
+| 11 | **UTF-8 inválido** (sobrelargas, sustitutos, > U+10FFFF) que se cuela a sistemas posteriores | lexers permisivos | AFD UTF-8 estricto por rangos; `\uD800` sin pareja es error. | `test_malformed_weight_is_infinite` |
+| 12 | **Precisión numérica** (aceptar o rechazar por redondeo) | validadores con `double` | Decimales exactos; ver los hallazgos 1 y 2 de `pruebas.md`. | `test_huge_numbers_exact` |
+| 13 | **Ejecución de código del usuario en el servidor** | la web compila y ejecuta | Sandbox: contenedor sin privilegios, sistema de archivos de solo lectura, `/tmp` en memoria, `cap_drop ALL`, límites de CPU y memoria, tiempos máximos, sin shell. | `docker-compose.yml`, `fase7-web.md` §4 |

@@ -1,0 +1,17 @@
+digraph "AFD 9 (content): (id cliente item+ estado)" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "q0";
+  "q0" [shape=circle];
+  "q1" [shape=circle];
+  "q2" [shape=circle];
+  "q3" [shape=circle];
+  "q4" [shape=doublecircle];
+  "q0" -> "q1" [label="id"];
+  "q1" -> "q2" [label="cliente"];
+  "q2" -> "q3" [label="item"];
+  "q3" -> "q3" [label="item"];
+  "q3" -> "q4" [label="estado"];
+}
