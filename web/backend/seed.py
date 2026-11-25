@@ -74,9 +74,24 @@ def case(cid, cat, fmt, nombre, schema_text, payload: bytes, oracle=None):
     except UnicodeDecodeError:
         doc["payload"] = payload.decode("utf-8", "replace")
         doc["payload_b64"] = base64.b64encode(payload).decode()
-    if len(payload) > 200_000:  # documentos grandes: se regeneran al vuelo
-        doc["payload"] = payload.decode("utf-8")
     return doc
+
+
+# Un ítem de DynamoDB admite como máximo 400 KB: los payloads más grandes
+# se guardan como receta y se regeneran (de forma determinista) al ejecutar.
+MAX_INLINE = 300_000
+
+
+def payload_of(doc: dict) -> bytes:
+    """Bytes del payload de un caso (inline, base64 o receta)."""
+    gen = doc.get("payload_gen")
+    if gen and gen.get("kind") == "bench_eventos":
+        sys.path.insert(0, str(ROOT / "bench"))
+        from bench import make_payload
+        return make_payload(int(gen["kb"]))
+    if doc.get("payload_b64"):
+        return base64.b64decode(doc["payload_b64"])
+    return doc["payload"].encode("utf-8")
 
 
 def build_cases() -> list[dict]:
@@ -205,8 +220,16 @@ def build_cases() -> list[dict]:
     sys.path.insert(0, str(ROOT / "bench"))
     from bench import make_payload
     p = make_payload(1024)
-    cs.append(case("extremo-payload-1MB", "extremos", "json",
-                   "payload de 1 MB en streaming", ev, p, None))
+    big = case("extremo-payload-1MB", "extremos", "json",
+               "payload de 1 MB en streaming", ev, p, None)
+    assert len(p) > MAX_INLINE
+    big["payload"] = ""
+    big["payload_gen"] = {"kind": "bench_eventos", "kb": 1024,
+                          "bytes": len(p)}
+    cs.append(big)
+    for d in cs:
+        assert len(json.dumps(d, ensure_ascii=False).encode()) < MAX_INLINE, \
+            d["_id"]
     return cs
 
 
@@ -223,11 +246,19 @@ KNOWN = {
 
 
 def main() -> None:
-    st = open_store()
     cs = build_cases()
     for d in cs:
         if d["_id"] in KNOWN:
             d["nota"] = KNOWN[d["_id"]]
+    if "--export" in sys.argv:
+        # Corpus versionado en el repo: el mismo que se carga en la nube.
+        out = ROOT / "tests" / "casos_nosql.json"
+        out.write_text(json.dumps(cs, ensure_ascii=False, indent=1) + "\n",
+                       encoding="utf-8")
+        print(f"exportado: {out} ({len(cs)} casos)")
+        if "--no-store" in sys.argv:
+            return
+    st = open_store()
     for d in cs:
         st.upsert(d)
     by: dict[str, int] = {}

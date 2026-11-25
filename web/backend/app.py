@@ -27,6 +27,7 @@ import io
 import json
 import shutil
 import sys
+import os
 import tempfile
 import time
 import zipfile
@@ -54,6 +55,17 @@ from .store import open_store  # noqa: E402
 
 app = FastAPI(title="WDPDA — Validación de esquemas JSON/XML con autómatas "
               "de pila ponderados", version="1.0")
+
+# El frontend puede servirse desde otro origen (bucket S3 en AWS): se
+# permiten solo los orígenes listados en CORS_ORIGINS (separados por
+# comas). Sin la variable, solo el mismo origen (desarrollo local).
+_origins = [o.strip() for o in os.environ.get("CORS_ORIGINS", "").split(",")
+            if o.strip()]
+if _origins:
+    from fastapi.middleware.cors import CORSMiddleware
+    app.add_middleware(CORSMiddleware, allow_origins=_origins,
+                       allow_methods=["GET", "POST"],
+                       allow_headers=["Content-Type"])
 STORE = open_store()
 CACHE: dict[str, dict] = {}  # id -> {"ir":..., "schema":..., "format":...}
 FRONT = ROOT / "web" / "frontend"
@@ -301,11 +313,8 @@ def put_case(req: CaseReq):
 def run_case(doc: dict) -> dict:
     fmt = "xsd" if doc.get("formato") in ("xml", "xsd") else "json"
     ir = compile_any(doc["esquema"], fmt)
-    if doc.get("payload_b64"):  # bytes que no son UTF-8 válido
-        import base64
-        data = base64.b64decode(doc["payload_b64"])
-    else:
-        data = doc["payload"].encode("utf-8")
+    from .seed import payload_of  # inline, base64 o receta (> 400 KB)
+    data = payload_of(doc)
     metr = {}
     t0 = time.perf_counter()
     r = make_validator(ir).validate(data)

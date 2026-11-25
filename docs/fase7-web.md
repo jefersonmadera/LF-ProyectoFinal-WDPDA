@@ -91,7 +91,7 @@ El driver es `pymongo`, así que la misma aplicación funciona con:
 > pero **no se ejecutaron** desde este repositorio: requieren iniciar
 > sesión en Azure o AWS y crear recursos que pueden tener costo.
 
-### Opción A (recomendada): Azure Container Apps + Cosmos DB for MongoDB
+### Opción A: Azure Container Apps + Cosmos DB for MongoDB
 
 ```bash
 az login
@@ -110,15 +110,13 @@ az containerapp up -g rg-wdpda -n wdpda-web --image wdpdaacr.azurecr.io/wdpda-we
 MONGODB_URI="$URI" python -m web.backend.seed
 ```
 
-### Opción B: AWS (App Runner o ECS Fargate) + MongoDB Atlas
+### Opción B (implementada): AWS con capa gratuita, S3 + EC2 + DynamoDB
 
-1. Crear un clúster M0 en MongoDB Atlas (región de AWS), un usuario y
-   permitir el acceso de red desde App Runner.
-2. `aws ecr create-repository --repository-name wdpda-web`, y luego
-   `docker build`, `docker tag` y `docker push` a ECR.
-3. App Runner: servicio desde la imagen de ECR, puerto 8000, variable
-   `MONGODB_URI` (como secreto de Secrets Manager).
-4. Sembrar con `MONGODB_URI=… python -m web.backend.seed`.
+Frontend en S3, backend en EC2 `t3.micro` con Docker y casos en
+**DynamoDB** (`WDPDA_STORE=dynamodb`), todo con CloudFormation y un
+script. Guía completa, seguridad y estructura de los ítems:
+**[despliegue-aws.md](despliegue-aws.md)**.
 
-(Si se prefiere DynamoDB, la capa `store.py` tiene una interfaz de 6
-métodos que se puede reimplementar con `boto3`; Atlas evita ese cambio.)
+```powershell
+.\deploy\aws\deploy.ps1 -Region us-east-1 -Branch feat/proyecto-completo
+```

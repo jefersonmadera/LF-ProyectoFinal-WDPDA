@@ -1,0 +1,183 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  WDPDA (Lenguajes Formales y Autómatas, UPTC). Despliegue de bajo costo
+  pensado para la capa gratuita de AWS: frontend estático en S3, backend
+  (FastAPI + gcc en Docker) en una instancia EC2 pequeña y casos de prueba
+  en DynamoDB con capacidad mínima. Verifique en la consola de AWS qué
+  cubre la capa gratuita o los créditos de su cuenta antes de crear la pila.
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    AllowedValues: [t2.micro, t3.micro, t4g.micro]
+    Description: Tipo de instancia (elegir uno incluido en la capa gratuita de la cuenta).
+  RepoUrl:
+    Type: String
+    Default: https://github.com/jefersonmadera/LF-ProyectoFinal-WDPDA.git
+    Description: Repositorio público que la instancia clona y construye.
+  Branch:
+    Type: String
+    Default: main
+    Description: Rama a desplegar (feat/proyecto-completo mientras el PR no esté fusionado).
+  AllowedCidr:
+    Type: String
+    Default: 0.0.0.0/0
+    Description: Red que puede usar la API (puerto 80). Restrínjala para la demo si quiere.
+  LatestAmi:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+    Description: Amazon Linux 2023 (x86_64). Para t4g.micro use la variante arm64.
+
+Resources:
+  # ---------------------------------------------------------------- NoSQL
+  CasosTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AWS::StackName}-casos"
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      # Capacidad aprovisionada mínima: 54 casos caben de sobra.
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  # ---------------------------------------------------------------- frontend
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: LecturaPublicaDelFrontend
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub "${FrontendBucket.Arn}/*"
+
+  # ---------------------------------------------------------------- backend
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: ec2.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        # Acceso por Session Manager (sin abrir SSH ni guardar llaves).
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Policies:
+        - PolicyName: SoloLaTablaDeCasos
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:DescribeTable
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Scan
+                Resource: !GetAtt CasosTable.Arn
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: [!Ref InstanceRole]
+
+  ApiSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: WDPDA API (HTTP)
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref AllowedCidr
+
+  ApiLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId: !Ref LatestAmi
+        InstanceType: !Ref InstanceType
+        IamInstanceProfile:
+          Arn: !GetAtt InstanceProfile.Arn
+        SecurityGroupIds: [!GetAtt ApiSecurityGroup.GroupId]
+        # IMDSv2 obligatorio; 2 saltos para que el contenedor Docker
+        # pueda leer las credenciales temporales del rol.
+        MetadataOptions:
+          HttpTokens: required
+          HttpPutResponseHopLimit: 2
+        BlockDeviceMappings:
+          - DeviceName: /dev/xvda
+            Ebs: { VolumeSize: 16, VolumeType: gp3, DeleteOnTermination: true }
+        TagSpecifications:
+          - ResourceType: instance
+            Tags: [{ Key: Name, Value: !Sub "${AWS::StackName}-api" }]
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            set -euxo pipefail
+            # 1 GB de swap: la instancia tiene 1 GB de RAM y la imagen compila con gcc.
+            fallocate -l 1G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+            dnf install -y docker git
+            systemctl enable --now docker
+            git clone --depth 1 -b "${Branch}" "${RepoUrl}" /opt/wdpda
+            cd /opt/wdpda
+            docker build -t wdpda-web .
+            FRONT="http://${FrontendBucket}.s3-website-${AWS::Region}.amazonaws.com"
+            docker run -d --name wdpda --restart unless-stopped -p 80:8000 \
+              --read-only --tmpfs /tmp:size=256m,exec \
+              --security-opt no-new-privileges --cap-drop ALL \
+              --memory 700m --cpus 1 \
+              -e WDPDA_STORE=dynamodb -e DYNAMODB_TABLE="${CasosTable}" \
+              -e AWS_REGION="${AWS::Region}" -e CORS_ORIGINS="$FRONT" \
+              wdpda-web
+            # Carga los 54 casos de prueba en DynamoDB.
+            for i in $(seq 1 30); do curl -fs http://127.0.0.1/api/health && break; sleep 5; done
+            docker exec wdpda python -m web.backend.seed
+
+  ApiInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref ApiLaunchTemplate
+        Version: !GetAtt ApiLaunchTemplate.LatestVersionNumber
+
+Outputs:
+  ApiUrl:
+    Description: Backend (API REST + WebSocket); el instalador tarda unos minutos en construir la imagen.
+    Value: !Sub "http://${ApiInstance.PublicDnsName}"
+  FrontendUrl:
+    Description: Frontend estático (S3 website).
+    Value: !GetAtt FrontendBucket.WebsiteURL
+  FrontendBucketName:
+    Value: !Ref FrontendBucket
+  CasosTableName:
+    Value: !Ref CasosTable
+  InstanceId:
+    Value: !Ref ApiInstance

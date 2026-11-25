@@ -44,8 +44,9 @@ sustentación** y los **diagramas en JFLAP**, está en
 Pendiente de los integrantes:
 
 - aprobar por escrito el IR y la API propuestos (`docs/decisiones.md`);
-- elegir la nube y desplegar con sus cuentas: los comandos están en
-  `docs/fase7-web.md` §6.
+- desplegar con su cuenta de AWS: la infraestructura (S3 + EC2 + DynamoDB,
+  capa gratuita) está lista en `deploy/aws/`, con la guía en
+  `docs/despliegue-aws.md`.
 
 ## Estructura
 
@@ -133,6 +134,13 @@ Luego abrir <http://localhost:8000>. Con MongoDB en contenedores:
 
 ```powershell
 docker compose up --build
+```
+
+En AWS (frontend en S3, backend en EC2, casos en DynamoDB), con la AWS CLI
+configurada; ver `docs/despliegue-aws.md`:
+
+```powershell
+.\deploy\aws\deploy.ps1 -Region us-east-1 -Branch feat/proyecto-completo
 ```
 
 > **Git Bash en Windows:** antes de usar `gcc` hay que ejecutar

@@ -11,7 +11,7 @@ RUN apt-get update \
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir fastapi==0.115.6 "uvicorn[standard]==0.32.1" \
-        pymongo==4.10.1 jsonschema==4.23.0 lxml==5.3.0
+        pymongo==4.10.1 boto3==1.35.81 jsonschema==4.23.0 lxml==5.3.0
 
 COPY compiler/ compiler/
 COPY runtime/ runtime/
