@@ -13,6 +13,7 @@ Orden de lectura recomendado para preparar la sustentación:
 | [fase5-codegen.md](fase5-codegen.md) | Fase 5: generación de C y Rust, API C-ABI/WASM, generador de payloads |
 | [fase6-runtime.md](fase6-runtime.md) | Fase 6: streaming, JSON Pointer, límites, métricas, **benchmark y bombeo** |
 | [fase7-web.md](fase7-web.md) | Fase 7: aplicación web, API, sandbox, NoSQL y despliegue en la nube |
+| [despliegue-aws.md](despliegue-aws.md) | **Despliegue en AWS** (S3 + EC2 + DynamoDB, capa gratuita) y estructura de los **casos de prueba NoSQL** |
 | [xml-xsd.md](xml-xsd.md) | Extensión XSD: Glushkov y UPA, `xs:date` regular con bisiestos, XXE |
 | [pruebas.md](pruebas.md) | Estrategia de pruebas, corpus, resultados y discrepancias con los oráculos |
 | [seguridad.md](seguridad.md) | Vulnerabilidades detectadas y mitigadas |

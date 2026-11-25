@@ -4,8 +4,16 @@
 const $ = (s) => document.querySelector(s);
 const state = { id: null, compiled: null, examples: [], seed: 1, charts: {} };
 
+// Backend: mismo origen (local) o la URL de config.js (frontend en S3).
+const API = (window.WDPDA_API || "").replace(/\/$/, "");
+function wsUrl(path) {
+  const base = API ? new URL(API) : location;
+  const proto = base.protocol === "https:" ? "wss" : "ws";
+  return `${proto}://${base.host}${path}`;
+}
+
 async function api(path, body) {
-  const r = await fetch(path, body === undefined ? {} : {
+  const r = await fetch(API + path, body === undefined ? {} : {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
@@ -82,7 +90,7 @@ async function compile() {
     $("#stats").innerHTML = cards.map(([v, l]) => `<div class="card"><b>${esc(v)}</b><span>${l}</span></div>`).join("");
     $("#classif tbody").innerHTML = r.classification.map((c) =>
       `<tr><td><code>${esc(c.keyword)}</code></td><td>${esc(c.category)}</td><td>${esc(c.strategy)}</td><td>${c.count}</td></tr>`).join("");
-    $("#btn-download").href = `/api/download/${r.id}.zip`;
+    $("#btn-download").href = `${API}/api/download/${r.id}.zip`;
     $("#ccode").textContent = r.c_code;
     // autómata
     $("#det").textContent = fo.deterministic ? "δ determinista ✓" : "δ NO determinista";
@@ -165,8 +173,7 @@ $("#btn-tree").onclick = async () => {
 $("#btn-stream").onclick = () => {
   if (!state.id) return;
   const text = $("#payload").value, size = Math.max(1, +$("#s-chunk").value), delay = +$("#s-delay").value;
-  const proto = location.protocol === "https:" ? "wss" : "ws";
-  const ws = new WebSocket(`${proto}://${location.host}/ws/stream`);
+  const ws = new WebSocket(wsUrl("/ws/stream"));
   let pos = 0, logged = 0;
   $("#s-log").innerHTML = "";
   const paint = (bad) => { $("#s-text").innerHTML = `<span class="${bad ? "bad" : "done"}">${esc(text.slice(0, pos))}</span>${esc(text.slice(pos))}`; };
@@ -207,8 +214,7 @@ function chart(id, label) {
 $("#btn-bench").onclick = () => {
   if (!state.id) return;
   const sizes = $("#b-sizes").value.split(",").map((x) => +x.trim()).filter(Boolean);
-  const proto = location.protocol === "https:" ? "wss" : "ws";
-  const ws = new WebSocket(`${proto}://${location.host}/ws/bench`);
+  const ws = new WebSocket(wsUrl("/ws/bench"));
   $("#bench-table tbody").innerHTML = "";
   const c1 = chart("#chart-mbs", "Rendimiento (MB/s, más es mejor)"), c2 = chart("#chart-mem", "Memoria (KB, menos es mejor)");
   const impls = ["WDPDA (C)", "DOM (C)", "jsonschema (Python)"], colors = ["#1f6feb", "#d29922", "#8957e5"];
