@@ -232,6 +232,10 @@ def dfa_auto(d: dict, name: str, symbols: list[str] | None = None) -> Auto:
                     continue
             else:
                 lab = _ranges_label(bs)
+                # Los bytes van aparte: el .jff tiene una transición por
+                # carácter, porque JFLAP lee «0-9» como tres símbolos.
+                a.add(f"q{s}", lab, f"q{t}", bs)
+                continue
             a.add(f"q{s}", lab, f"q{t}")
     return a
 
@@ -288,7 +292,11 @@ def to_jff(a: Auto, path: str | Path) -> Path:
     for t in a.trans:
         if a.kind == "fa":
             src, lab, dst = t[:3]
-            reads = lab.split(",") if len(lab) > 1 and "," in lab else [lab]
+            if len(t) > 3 and isinstance(t[3], list):
+                # Solo los ASCII imprimibles: se pueden escribir en JFLAP.
+                reads = [chr(b) for b in t[3] if 0x21 <= b <= 0x7E]
+            else:
+                reads = lab.split(",") if len(lab) > 1 and "," in lab else [lab]
             for r in reads:
                 out += ["\t\t<transition>", f"\t\t\t<from>{ids[src]}</from>",
                         f"\t\t\t<to>{ids[dst]}</to>",
@@ -297,7 +305,8 @@ def to_jff(a: Auto, path: str | Path) -> Path:
             src, read, pop, push, dst = t[:5]
             r = _jflap_sym(read)
             p = _jflap_stack(pop)
-            u = "".join(_jflap_stack(x) for x in push)
+            # δ escribe la pila de fondo a tope; JFLAP pone primero el tope.
+            u = "".join(_jflap_stack(x) for x in reversed(push))
             out += ["\t\t<transition>", f"\t\t\t<from>{ids[src]}</from>",
                     f"\t\t\t<to>{ids[dst]}</to>",
                     f"\t\t\t<read>{escape(r)}</read>" if r else "\t\t\t<read/>",

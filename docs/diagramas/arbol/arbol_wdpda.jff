@@ -392,14 +392,14 @@
 			<to>11</to>
 			<read>{</read>
 			<pop>b</pop>
-			<push>ba</push>
+			<push>ab</push>
 		</transition>
 		<transition>
 			<from>17</from>
 			<to>11</to>
 			<read>{</read>
 			<pop>b</pop>
-			<push>ba</push>
+			<push>ab</push>
 		</transition>
 		<transition>
 			<from>16</from>

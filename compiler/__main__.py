@@ -170,6 +170,23 @@ def cmd_lexer_diagrams(a) -> int:
         print(export.to_svg(au, out / f"{k}.svg"))
         (out / f"{k}.dot").write_text(export.to_dot(au), encoding="utf-8")
         (out / f"{k}.mmd").write_text(export.to_mermaid(au), encoding="utf-8")
+    # AFD mínimos de expresiones regulares (regex → Thompson → subconjuntos
+    # → Moore): el ejemplo clásico y xs:date con años bisiestos.
+    from .automata import compile_regex
+    from .xsd import DATE_RE, TZ_RE
+    for k, pat in (("regex_abb", r"^(a|b)*abb$"),
+                   ("xs_date", "^(?:" + DATE_RE + TZ_RE + ")$")):
+        d = compile_regex(pat)
+        classes, ncls, table = d.dense()
+        short = pat if len(pat) <= 40 else pat[:40] + "…"
+        title = (f"AFD mínimo de {short} ({d.n} estados, "
+                 f"{d.states_before_min} antes de minimizar)")
+        au = export.dfa_auto({"states": d.n, "classes": classes,
+                              "ncls": ncls, "table": table,
+                              "accept": d.tag}, title)
+        print(export.to_jff(au, out / f"{k}.jff"))
+        print(export.to_svg(au, out / f"{k}.svg"))
+        (out / f"{k}.dot").write_text(export.to_dot(au), encoding="utf-8")
     (out / "LEYENDA_JFLAP.txt").write_text(export.jflap_legend(),
                                            encoding="utf-8")
     return 0

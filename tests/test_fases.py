@@ -239,3 +239,28 @@ def test_jflap_lexer_number_dfa(tmp_path):
         assert run(w), w
     for w in ["01", "1.", ".5", "1e", "-", "+1", "1e+"]:
         assert not run(w), w
+
+
+def test_jflap_recursive_push_order(tmp_path):
+    """Arreglo de objetos: apila dos símbolos y JFLAP espera el tope primero."""
+    s = (b'{"$defs":{"n":{"type":"object","properties":{"v":{"type":"integer"},'
+         b'"h":{"type":"array","items":{"$ref":"#/$defs/n"}}}}},'
+         b'"$ref":"#/$defs/n"}')
+    f = build_formal(compile_schema(s))
+    p = export.to_jff(export.formal_auto(f, "arbol"), tmp_path / "a.jff")
+    for w in ["{A:i}", "{A:i,B:[{A:i},{A:i,B:[{A:i}]}]}"]:
+        assert _simulate_pda(p, w), w
+    assert not _simulate_pda(p, "{A:i,B:[{A:i}]")
+
+
+def test_jflap_pattern_ranges_are_expanded(tmp_path):
+    """JFLAP lee «0-9» como tres símbolos: el .jff lleva un carácter por arista."""
+    d = compile_regex(r"^[A-Z]{3}-[0-9]{4}$")
+    classes, ncls, table = d.dense()
+    au = export.dfa_auto({"states": d.n, "classes": classes, "ncls": ncls,
+                          "table": table, "accept": d.tag}, "sku")
+    p = export.to_jff(au, tmp_path / "sku.jff")
+    root = ET.parse(p).getroot().find("automaton")
+    reads = {t.findtext("read") for t in root.findall("transition")}
+    assert all(len(r) == 1 for r in reads)
+    assert {"A", "Z", "0", "9", "-"} <= reads
