@@ -19,5 +19,5 @@ Orden de lectura recomendado para preparar la sustentación:
 | [seguridad.md](seguridad.md) | Vulnerabilidades detectadas y mitigadas |
 | [ir.md](ir.md) | Formato del IR (congelado, versión 1) |
 | [decisiones.md](decisiones.md) | Decisiones de diseño con sus alternativas descartadas |
-| [diagramas/](diagramas/README.md) | Diagramas en **JFLAP (.jff)**, SVG, DOT y Mermaid |
+| [diagramas/](diagramas/README.md) | Diagramas en **JFLAP (.jff)**, SVG, DOT y Mermaid; [guía con entradas de prueba](diagramas/GUIA_JFLAP.md) |
 | [fase2-parser.md](fase2-parser.md) | (histórico) el parser del prototipo `avance_mvp/` |

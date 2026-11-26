@@ -1,5 +1,8 @@
 # Diagramas de autómatas
 
+**[GUIA_JFLAP.md](GUIA_JFLAP.md)** explica cada diagrama y da entradas
+verificadas para probarlo en JFLAP (qué acepta, qué rechaza y por qué).
+
 Todos se **generan desde el código** (lo que se dibuja es lo que se
 ejecuta):
 
@@ -26,7 +29,7 @@ python -m compiler diagrams tests\schemas\persona.json -o docs\diagramas\persona
 | Archivo | Autómata | Probar en JFLAP |
 | --- | --- | --- |
 | `numero_json` | AFD de número JSON (RFC 8259) | acepta `0`, `-12`, `1.5e-3`; rechaza `01`, `1.`, `.5`, `1e` |
-| `cadena_json` | AFD de cadena con escapes y `\uXXXX` (alfabeto reducido) | `"ab\n"`, `"é"` |
+| `cadena_json` | AFD de cadena con escapes y `\uXXXX` (alfabeto reducido) | `"ab\n"`, `"é"`; rechaza `"\q"` |
 | `literales_json` | `true`, `false`, `null` | |
 | `utf8` | AFD de validación UTF-8 sobre clases de bytes (ver la leyenda en la nota del `.jff`) | `A`, `Bx`, `Cxx`, `Dzx`; rechaza `Dx` (sobrelarga) y `Ez` (sustituto) |
 | `json_dpda` | **DPDA sintáctico de JSON** (autómata de pila) | `{k:[i,s,{}],k:u}` ✓, `{k:}` ✗, `[i,]` ✗ |

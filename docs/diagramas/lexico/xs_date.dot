@@ -1,4 +1,4 @@
-digraph "AFD mínimo de ^(?:(-?([1-9][0-9]{3}|0[1-9][0-9]{2}|00[ (43 estados, 85 antes de minimizar)" {
+digraph "AFD mínimo de ^(?:(-?([1-9][0-9]{3}|0[1-9][0-9]{2}|00[… (43 estados, 85 antes de minimizar)" {
   rankdir=LR;
   node [shape=circle fontname="Helvetica" fontsize=11];
   edge [fontname="Helvetica" fontsize=9];
