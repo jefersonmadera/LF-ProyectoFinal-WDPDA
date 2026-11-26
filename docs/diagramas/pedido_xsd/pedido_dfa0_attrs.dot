@@ -1,0 +1,22 @@
+digraph "AFD 0 (attrs): ['version']" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "q0";
+  "q0" [shape=circle];
+  "q1" [shape=circle];
+  "q2" [shape=circle];
+  "q3" [shape=circle];
+  "q4" [shape=circle];
+  "q5" [shape=circle];
+  "q6" [shape=circle];
+  "q7" [shape=doublecircle];
+  "q0" -> "q1" [label="v"];
+  "q1" -> "q2" [label="e"];
+  "q2" -> "q3" [label="r"];
+  "q3" -> "q4" [label="s"];
+  "q4" -> "q5" [label="i"];
+  "q5" -> "q6" [label="o"];
+  "q6" -> "q7" [label="n"];
+}

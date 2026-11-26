@@ -1,0 +1,378 @@
+{
+ "machine": {
+  "python": "3.13.7",
+  "platform": "Windows-11-10.0.26100-SP0",
+  "processor": "Intel64 Family 6 Model 78 Stepping 3, GenuineIntel"
+ },
+ "schema": "bench\\schemas\\eventos.json",
+ "automaton": {
+  "states": 40,
+  "stack_symbols": 7,
+  "transitions": 217,
+  "epsilon_transitions": 7,
+  "violation_transitions": 115,
+  "input_symbols": [
+   ",",
+   ":",
+   "FALSE",
+   "FRAC",
+   "INT",
+   "KEY(*)",
+   "KEY(etiquetas)",
+   "KEY(id)",
+   "KEY(meta)",
+   "KEY(monto)",
+   "KEY(ok)",
+   "KEY(tipo)",
+   "KEY(usuario)",
+   "NULL",
+   "STRING",
+   "TRUE",
+   "[",
+   "]",
+   "{",
+   "}",
+   "ε"
+  ],
+  "deterministic": true,
+  "determinism_conflicts": [],
+  "product_nodes": [],
+  "start": "V(n0)",
+  "final": "F"
+ },
+ "stats": {
+  "schema_nodes": 12,
+  "reachable_nodes": 12,
+  "nodes_after_minimization": 11,
+  "dfa_count": 3,
+  "dfa_states": 62,
+  "dfa_states_before_min": 62,
+  "max_lane_width": 1
+ },
+ "sizes": [
+  {
+   "kb": 64,
+   "bytes": 65622,
+   "wdpda-c": {
+    "status": "VALID",
+    "weight": 0,
+    "errors": [],
+    "error_count": 0,
+    "bytes": 65622,
+    "max_depth": 3,
+    "lanes_peak": 4,
+    "tokens": 19489,
+    "seconds": 0.000870466,
+    "mb_s": 75.39,
+    "cycles_per_byte": 34.38,
+    "runtime_allocations": 0,
+    "ctx_bytes": 1134832,
+    "automaton": {
+     "states": 40,
+     "transitions": 217,
+     "nodes": 11,
+     "dfas": 3
+    }
+   },
+   "wdpda-c-chunk64": {
+    "status": "VALID",
+    "weight": 0,
+    "errors": [],
+    "error_count": 0,
+    "bytes": 65622,
+    "max_depth": 3,
+    "lanes_peak": 4,
+    "tokens": 19489,
+    "seconds": 0.000831842,
+    "mb_s": 78.89,
+    "cycles_per_byte": 32.86,
+    "runtime_allocations": 0,
+    "ctx_bytes": 1134832,
+    "automaton": {
+     "states": 40,
+     "transitions": 217,
+     "nodes": 11,
+     "dfas": 3
+    }
+   },
+   "wdpda-rust": {
+    "status": "VALID",
+    "weight": 0,
+    "errors": [],
+    "error_count": 0,
+    "bytes": 65622,
+    "max_depth": 3,
+    "lanes_peak": 4,
+    "tokens": 19489,
+    "seconds": 0.0012267,
+    "mb_s": 53.49,
+    "cycles_per_byte": null,
+    "runtime_allocations": 0,
+    "ctx_bytes": 1133000,
+    "automaton": {
+     "states": 40,
+     "transitions": 217,
+     "nodes": 11,
+     "dfas": 3
+    }
+   },
+   "dom-c": {
+    "status": "VALID",
+    "weight": 0,
+    "bytes": 65622,
+    "seconds": 0.002771378,
+    "mb_s": 23.68,
+    "allocations": 17467,
+    "peak_bytes": 652849
+   },
+   "jsonschema": {
+    "status": "INVALID",
+    "seconds": 0.04902739999943151,
+    "mb_s": 1.3384760358648615,
+    "peak_bytes": 569360,
+    "note": "falsos INVALID por multipleOf con float binario"
+   },
+   "wdpda-py": {
+    "status": "VALID",
+    "seconds": 0.18016379999971832,
+    "mb_s": 0.364235212623749
+   }
+  },
+  {
+   "kb": 1024,
+   "bytes": 1048630,
+   "wdpda-c": {
+    "status": "VALID",
+    "weight": 0,
+    "errors": [],
+    "error_count": 0,
+    "bytes": 1048630,
+    "max_depth": 3,
+    "lanes_peak": 4,
+    "tokens": 307729,
+    "seconds": 0.013502359,
+    "mb_s": 77.66,
+    "cycles_per_byte": 33.37,
+    "runtime_allocations": 0,
+    "ctx_bytes": 1134832,
+    "automaton": {
+     "states": 40,
+     "transitions": 217,
+     "nodes": 11,
+     "dfas": 3
+    }
+   },
+   "wdpda-c-chunk64": {
+    "status": "VALID",
+    "weight": 0,
+    "errors": [],
+    "error_count": 0,
+    "bytes": 1048630,
+    "max_depth": 3,
+    "lanes_peak": 4,
+    "tokens": 307729,
+    "seconds": 0.014469147,
+    "mb_s": 72.47,
+    "cycles_per_byte": 35.76,
+    "runtime_allocations": 0,
+    "ctx_bytes": 1134832,
+    "automaton": {
+     "states": 40,
+     "transitions": 217,
+     "nodes": 11,
+     "dfas": 3
+    }
+   },
+   "wdpda-rust": {
+    "status": "VALID",
+    "weight": 0,
+    "errors": [],
+    "error_count": 0,
+    "bytes": 1048630,
+    "max_depth": 3,
+    "lanes_peak": 4,
+    "tokens": 307729,
+    "seconds": 0.0198294,
+    "mb_s": 52.88,
+    "cycles_per_byte": null,
+    "runtime_allocations": 0,
+    "ctx_bytes": 1133000,
+    "automaton": {
+     "states": 40,
+     "transitions": 217,
+     "nodes": 11,
+     "dfas": 3
+    }
+   },
+   "dom-c": {
+    "status": "VALID",
+    "weight": 0,
+    "bytes": 1048630,
+    "seconds": 0.047116756,
+    "mb_s": 22.26,
+    "allocations": 275686,
+    "peak_bytes": 10320332
+   },
+   "jsonschema": {
+    "status": "INVALID",
+    "seconds": 0.8191438000003473,
+    "mb_s": 1.2801537410153814,
+    "peak_bytes": 8444826,
+    "note": "falsos INVALID por multipleOf con float binario"
+   }
+  },
+  {
+   "kb": 8192,
+   "bytes": 8388628,
+   "wdpda-c": {
+    "status": "VALID",
+    "weight": 0,
+    "errors": [],
+    "error_count": 0,
+    "bytes": 8388628,
+    "max_depth": 3,
+    "lanes_peak": 4,
+    "tokens": 2434609,
+    "seconds": 0.110360146,
+    "mb_s": 76.01,
+    "cycles_per_byte": 34.1,
+    "runtime_allocations": 0,
+    "ctx_bytes": 1134832,
+    "automaton": {
+     "states": 40,
+     "transitions": 217,
+     "nodes": 11,
+     "dfas": 3
+    }
+   },
+   "wdpda-c-chunk64": {
+    "status": "VALID",
+    "weight": 0,
+    "errors": [],
+    "error_count": 0,
+    "bytes": 8388628,
+    "max_depth": 3,
+    "lanes_peak": 4,
+    "tokens": 2434609,
+    "seconds": 0.123588085,
+    "mb_s": 67.88,
+    "cycles_per_byte": 38.19,
+    "runtime_allocations": 0,
+    "ctx_bytes": 1134832,
+    "automaton": {
+     "states": 40,
+     "transitions": 217,
+     "nodes": 11,
+     "dfas": 3
+    }
+   },
+   "wdpda-rust": {
+    "status": "VALID",
+    "weight": 0,
+    "errors": [],
+    "error_count": 0,
+    "bytes": 8388628,
+    "max_depth": 3,
+    "lanes_peak": 4,
+    "tokens": 2434609,
+    "seconds": 0.1602475,
+    "mb_s": 52.35,
+    "cycles_per_byte": null,
+    "runtime_allocations": 0,
+    "ctx_bytes": 1133000,
+    "automaton": {
+     "states": 40,
+     "transitions": 217,
+     "nodes": 11,
+     "dfas": 3
+    }
+   },
+   "dom-c": {
+    "status": "VALID",
+    "weight": 0,
+    "bytes": 8388628,
+    "seconds": 0.360324383,
+    "mb_s": 23.28,
+    "allocations": 2181019,
+    "peak_bytes": 81705660
+   },
+   "jsonschema": {
+    "status": "INVALID",
+    "seconds": 7.356650400000035,
+    "mb_s": 1.1402781896500016,
+    "peak_bytes": 66488631,
+    "note": "falsos INVALID por multipleOf con float binario"
+   }
+  }
+ ],
+ "pumping": [
+  {
+   "k": 10,
+   "bytes": 61,
+   "wdpda_seconds": 2.623e-06,
+   "wdpda_depth": 10,
+   "wdpda_ctx_bytes": 1343984,
+   "wdpda_status": "VALID",
+   "dom_seconds": 6.199e-06,
+   "dom_allocations": 52,
+   "dom_peak_bytes": 1914
+  },
+  {
+   "k": 100,
+   "bytes": 601,
+   "wdpda_seconds": 7.391e-06,
+   "wdpda_depth": 100,
+   "wdpda_ctx_bytes": 1343984,
+   "wdpda_status": "VALID",
+   "dom_seconds": 3.8862e-05,
+   "dom_allocations": 502,
+   "dom_peak_bytes": 18474
+  },
+  {
+   "k": 1000,
+   "bytes": 6001,
+   "wdpda_seconds": 6.7234e-05,
+   "wdpda_depth": 1000,
+   "wdpda_ctx_bytes": 1343984,
+   "wdpda_status": "VALID",
+   "dom_seconds": 0.000678539,
+   "dom_allocations": 5002,
+   "dom_peak_bytes": 184074
+  },
+  {
+   "k": 5000,
+   "bytes": 30001,
+   "wdpda_seconds": 0.000333071,
+   "wdpda_depth": 5000,
+   "wdpda_ctx_bytes": 1343984,
+   "wdpda_status": "VALID",
+   "dom_seconds": 0.003080368,
+   "dom_allocations": 25002,
+   "dom_peak_bytes": 920074
+  },
+  {
+   "k": 10000,
+   "bytes": 60001,
+   "wdpda_seconds": 0.000686169,
+   "wdpda_depth": 10000,
+   "wdpda_ctx_bytes": 1343984,
+   "wdpda_status": "VALID",
+   "dom_seconds": 0.007297754,
+   "dom_allocations": 50002,
+   "dom_peak_bytes": 1840074
+  },
+  {
+   "k": 300,
+   "limit_test": "DEPTH",
+   "fatal_message": "profundidad máxima superada"
+  }
+ ],
+ "sustained": {
+  "docs": 20000,
+  "valid": 20000,
+  "seconds": 1.1968469000003097,
+  "docs_per_s": 16710.57509527311,
+  "mb_s": 18.030710527799684,
+  "note": "incluye arranque del proceso y E/S"
+ }
+}

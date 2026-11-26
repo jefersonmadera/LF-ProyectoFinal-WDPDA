@@ -1,0 +1,34 @@
+digraph "AFD de literales true/false/null" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "q0";
+  "q0" [shape=circle];
+  "t" [shape=circle];
+  "tr" [shape=circle];
+  "tru" [shape=circle];
+  "true" [shape=doublecircle];
+  "f" [shape=circle];
+  "fa" [shape=circle];
+  "fal" [shape=circle];
+  "fals" [shape=circle];
+  "false" [shape=doublecircle];
+  "n" [shape=circle];
+  "nu" [shape=circle];
+  "nul" [shape=circle];
+  "null" [shape=doublecircle];
+  "q0" -> "t" [label="t"];
+  "t" -> "tr" [label="r"];
+  "tr" -> "tru" [label="u"];
+  "tru" -> "true" [label="e"];
+  "q0" -> "f" [label="f"];
+  "f" -> "fa" [label="a"];
+  "fa" -> "fal" [label="l"];
+  "fal" -> "fals" [label="s"];
+  "fals" -> "false" [label="e"];
+  "q0" -> "n" [label="n"];
+  "n" -> "nu" [label="u"];
+  "nu" -> "nul" [label="l"];
+  "nul" -> "null" [label="l"];
+}

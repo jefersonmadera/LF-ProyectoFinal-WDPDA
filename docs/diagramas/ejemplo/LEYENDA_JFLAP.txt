@@ -1,0 +1,3 @@
+Símbolos de entrada (tokens): {={, }=}, [=[, ]=], :=:, ,=,, s=STRING, i=INT, d=FRAC, t=TRUE, f=FALSE, u=NULL, k=KEY(*)
+Claves: A=edad, B=nombre, C=activo
+Pila: Z=Z0, O=O⊤, A=A⊤, a=On0

@@ -197,3 +197,26 @@ La comparación C contra Python NO es una "mejora": son piezas
 distintas (tokenizador completo contra esqueleto estructural).
 La línea base DOM + validador genérico llega con el validador
 real, en las semanas 2-3.
+
+## 7. Actualización (Fases 2–7): diagramas JFLAP y runtime definitivo
+
+- Los AFD de esta fase se generan como **archivos de JFLAP ejecutables**
+  y como SVG en `docs/diagramas/lexico/` (`numero_json`, `cadena_json`,
+  `literales_json`, `utf8`). El AFD de número se prueba
+  automáticamente: el `.jff` exportado acepta `0`, `-0`, `12`, `1.5`,
+  `1e9` y `-2.5E-3`, y rechaza `01`, `1.`, `.5`, `1e`, `-`, `+1` y `1e+`
+  (`tests/test_fases.py::test_jflap_lexer_number_dfa`).
+- Las limitaciones del esqueleto de la sección 5 están resueltas en el
+  runtime definitivo (`runtime/c/wdpda_rt.c`, `runtime/rust/src/wdpda_rt.rs`).
+  Valida números, literales, la estructura completa (DPDA sintáctico de
+  tabla densa), los pares sustitutos y el esquema. El esqueleto
+  (`wdpda.c`, `main.c`, `lib.rs`) se conserva como historia de la
+  Semana 1, con sus pruebas.
+- El lexer XML ahora admite nombres con prefijo (`xs:element`), entrega
+  los atributos decodificados, rechaza atributos duplicados y `<` en
+  valores, y decodifica solo las 5 entidades predefinidas y las
+  referencias de carácter (mitigación de XXE y *billion laughs*; ver
+  `xml-xsd.md`).
+- Las cifras de rendimiento definitivas están en `fase6-runtime.md` y en
+  `bench/RESULTADOS.md`. En Windows, los ciclos por byte se miden con
+  `rdtsc`.

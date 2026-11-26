@@ -1,0 +1,11 @@
+{
+  "title": "Números exactos",
+  "type": "object",
+  "properties": {
+    "entero_grande": { "type": "integer", "minimum": 0, "maximum": 99999999999999999999999999999999 },
+    "porcentaje": { "type": "number", "minimum": 0, "maximum": 100, "multipleOf": 0.5 },
+    "temperatura": { "type": "number", "exclusiveMinimum": -273.15, "exclusiveMaximum": 1e4 },
+    "par": { "type": "integer", "multipleOf": 2 }
+  },
+  "additionalProperties": { "type": "number" }
+}

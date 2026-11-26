@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Catálogo recursivo: una categoría contiene productos y subcategorías -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="catalogo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="categoria" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="fecha" type="xs:date" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="categoria">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="nombre" type="xs:string"/>
+        <xs:element name="producto" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="titulo" type="xs:string"/>
+              <xs:element name="precio">
+                <xs:simpleType>
+                  <xs:restriction base="xs:decimal">
+                    <xs:minExclusive value="0"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="disponible" type="xs:boolean" minOccurs="0"/>
+            </xs:sequence>
+            <xs:attribute name="codigo" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element ref="categoria" minOccurs="0" maxOccurs="3"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

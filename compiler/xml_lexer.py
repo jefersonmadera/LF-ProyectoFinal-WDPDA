@@ -40,9 +40,52 @@ class XmlToken:
     kind: str
     value: Any
     offset: int
+    attrs: tuple = ()  # ((nombre, valor decodificado), ...) en etiquetas
 
     def __repr__(self) -> str:
         return f"XmlToken({self.kind}, {self.value!r}, @{self.offset})"
+
+
+# Entidades predefinidas de XML 1.0. Sin DTD no puede haber otras: una
+# referencia a cualquier otra entidad es un error (no hay expansión de
+# entidades, así que no hay "billion laughs" ni XXE).
+_ENTITIES = {"lt": "<", "gt": ">", "amp": "&", "quot": '"', "apos": "'"}
+
+
+def decode_entities(text: str, offset: int) -> str:
+    if "&" not in text:
+        return text
+    out = []
+    i = 0
+    while i < len(text):
+        c = text[i]
+        if c != "&":
+            out.append(c)
+            i += 1
+            continue
+        j = text.find(";", i)
+        if j == -1 or j - i > 12:
+            raise LexerError("'&' sin referencia de entidad válida", offset)
+        name = text[i + 1:j]
+        if name in _ENTITIES:
+            out.append(_ENTITIES[name])
+        elif name.startswith("#x") and len(name) > 2 and all(
+                ch in "0123456789abcdefABCDEF" for ch in name[2:]):
+            out.append(_char_ref(int(name[2:], 16), offset))
+        elif name.startswith("#") and name[1:].isdigit():
+            out.append(_char_ref(int(name[1:]), offset))
+        else:
+            raise LexerError(f"entidad no definida &{name}; (sin DTD no "
+                             "hay entidades externas: mitigación XXE)",
+                             offset)
+        i = j + 1
+    return "".join(out)
+
+
+def _char_ref(cp: int, offset: int) -> str:
+    if cp == 0 or cp > 0x10FFFF or 0xD800 <= cp <= 0xDFFF:
+        raise LexerError("referencia de carácter inválida", offset)
+    return chr(cp)
 
 
 def _is_name_start(b: int) -> bool:
@@ -50,7 +93,9 @@ def _is_name_start(b: int) -> bool:
 
 
 def _is_name_char(b: int) -> bool:
-    return _is_name_start(b) or (0x30 <= b <= 0x39) or b in (ord("-"), ord("."))
+    # ':' separa el prefijo de espacio de nombres (QName: xs:element).
+    return _is_name_start(b) or (0x30 <= b <= 0x39) or b in (
+        ord("-"), ord("."), ord(":"))
 
 
 class XmlTokenizer:
@@ -99,13 +144,16 @@ class XmlTokenizer:
                 if final:
                     text = bytes(buf[i:]).decode("utf-8")
                     if text:
-                        tokens.append(XmlToken("TEXT", text,
-                                               self._offset + i))
+                        tokens.append(XmlToken(
+                            "TEXT", decode_entities(text, self._offset + i),
+                            self._offset + i))
                     i = len(buf)
                 break  # texto partido: esperar más (o finish)
             if nxt > i:
                 text = bytes(buf[i:nxt]).decode("utf-8")
-                tokens.append(XmlToken("TEXT", text, self._offset + i))
+                tokens.append(XmlToken(
+                    "TEXT", decode_entities(text, self._offset + i),
+                    self._offset + i))
             i = nxt
         del buf[:i]
         self._offset += i
@@ -166,13 +214,16 @@ class XmlTokenizer:
         parts = inner.split(None, 1)
         if not parts or not _valid_name(parts[0]):
             raise LexerError("etiqueta inválida", self._offset + start)
+        attrs: tuple = ()
         if len(parts) == 2:
-            self._check_attributes(parts[1], start)
+            attrs = self._check_attributes(parts[1], start)
         kind = "TAG_EMPTY" if empty else "TAG_OPEN"
         return (XmlToken(kind, parts[0].decode("ascii"),
-                         self._offset + start), end + 1)
+                         self._offset + start, attrs), end + 1)
 
-    def _check_attributes(self, attrs: bytes, tag_offset: int) -> None:
+    def _check_attributes(self, attrs: bytes, tag_offset: int) -> tuple:
+        """Valida la sintaxis de los atributos y los devuelve decodificados."""
+        out: list[tuple[str, str]] = []
         i = 0
         while i < len(attrs):
             while i < len(attrs) and attrs[i] in b" \t\n\r":
@@ -199,7 +250,18 @@ class XmlTokenizer:
             if k == -1:
                 raise LexerError("valor de atributo sin cerrar",
                                  self._offset + tag_offset)
+            name = attrs[i:attrs.find(b"=", i)].strip().decode("ascii")
+            raw = attrs[j + 1:k].decode("utf-8")
+            if "<" in raw:
+                raise LexerError("'<' no permitido en un valor de atributo",
+                                 self._offset + tag_offset)
+            if any(n == name for n, _ in out):
+                raise LexerError(f"atributo duplicado {name!r}",
+                                 self._offset + tag_offset)
+            out.append((name, decode_entities(raw, self._offset +
+                                              tag_offset)))
             i = k + 1
+        return tuple(out)
 
     # -- Utilidad -------------------------------------------------------
 

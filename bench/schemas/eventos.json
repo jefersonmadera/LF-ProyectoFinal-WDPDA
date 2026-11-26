@@ -1,0 +1,25 @@
+{
+  "title": "Lote de eventos de un microservicio (esquema del benchmark)",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": { "type": "integer", "minimum": 1 },
+      "tipo": { "enum": ["click", "compra", "login", "logout"] },
+      "usuario": { "type": "string", "pattern": "^u[0-9]{4,8}$" },
+      "monto": { "type": "number", "minimum": 0, "multipleOf": 0.01 },
+      "etiquetas": {
+        "type": "array",
+        "items": { "type": "string", "maxLength": 16 },
+        "maxItems": 8
+      },
+      "meta": {
+        "type": "object",
+        "additionalProperties": { "type": ["string", "number", "boolean"] }
+      },
+      "ok": { "type": "boolean" }
+    },
+    "required": ["id", "tipo", "usuario"],
+    "additionalProperties": false
+  }
+}

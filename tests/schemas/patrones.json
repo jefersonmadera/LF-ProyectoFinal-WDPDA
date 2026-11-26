@@ -1,0 +1,13 @@
+{
+  "title": "Encabezados HTTP",
+  "type": "object",
+  "patternProperties": {
+    "^x-[a-z-]+$": { "type": "string", "maxLength": 64 },
+    "^content-(type|length)$": { "type": ["string", "integer"] }
+  },
+  "properties": { "host": { "type": "string", "pattern": "^[a-z0-9.-]+(:[0-9]{1,5})?$" } },
+  "required": ["host"],
+  "additionalProperties": false,
+  "minProperties": 1,
+  "maxProperties": 8
+}

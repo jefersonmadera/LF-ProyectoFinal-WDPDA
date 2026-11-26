@@ -1,0 +1,34 @@
+digraph "AFD 0 (keys): ['id', 'forma', 'codigo']" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "q0";
+  "q0" [shape=circle];
+  "q1" [shape=circle];
+  "q2" [shape=circle];
+  "q3" [shape=circle];
+  "q4" [shape=doublecircle];
+  "q5" [shape=circle];
+  "q6" [shape=circle];
+  "q7" [shape=circle];
+  "q8" [shape=circle];
+  "q9" [shape=circle];
+  "q10" [shape=circle];
+  "q11" [shape=doublecircle];
+  "q12" [shape=circle];
+  "q13" [shape=doublecircle];
+  "q0" -> "q1" [label="i"];
+  "q0" -> "q2" [label="f"];
+  "q0" -> "q3" [label="c"];
+  "q1" -> "q4" [label="d"];
+  "q2" -> "q5" [label="o"];
+  "q3" -> "q6" [label="o"];
+  "q5" -> "q7" [label="r"];
+  "q6" -> "q8" [label="d"];
+  "q7" -> "q9" [label="m"];
+  "q8" -> "q10" [label="i"];
+  "q9" -> "q11" [label="a"];
+  "q10" -> "q12" [label="g"];
+  "q12" -> "q13" [label="o"];
+}

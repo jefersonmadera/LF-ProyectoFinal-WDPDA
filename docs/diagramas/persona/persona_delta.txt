@@ -1,0 +1,127 @@
+R              --ε; Z0/Z0 / w=0--> F
+K1(⊤)          --KEY(*) / w=0--> C(⊤,*)
+K2(⊤)          --KEY(*) / w=0--> C(⊤,*)
+V(⊤)           --{; push O⊤ / w=0--> K1(⊤)
+V(⊤)           --[; push A⊤ / w=0--> A1(⊤)
+V(⊤)           --STRING / w=0--> R
+V(⊤)           --INT / w=0--> R
+V(⊤)           --FRAC / w=0--> R
+V(⊤)           --TRUE / w=0--> R
+V(⊤)           --FALSE / w=0--> R
+V(⊤)           --NULL / w=0--> R
+C(⊤,*)         --: / w=0--> V(⊤)
+K1(⊤)          --}; O⊤/λ / w=0--> R
+N(⊤)           --}; O⊤/λ / w=0--> R
+N(⊤)           --, / w=0--> K2(⊤)
+R              --ε; O⊤/O⊤ / w=0--> N(⊤)
+A1(⊤)          --{; push O⊤ / w=0--> K1(⊤)
+A1(⊤)          --[; push A⊤ / w=0--> A1(⊤)
+A1(⊤)          --STRING / w=0--> R
+A1(⊤)          --INT / w=0--> R
+A1(⊤)          --FRAC / w=0--> R
+A1(⊤)          --TRUE / w=0--> R
+A1(⊤)          --FALSE / w=0--> R
+A1(⊤)          --NULL / w=0--> R
+A2(⊤)          --{; push O⊤ / w=0--> K1(⊤)
+A2(⊤)          --[; push A⊤ / w=0--> A1(⊤)
+A2(⊤)          --STRING / w=0--> R
+A2(⊤)          --INT / w=0--> R
+A2(⊤)          --FRAC / w=0--> R
+A2(⊤)          --TRUE / w=0--> R
+A2(⊤)          --FALSE / w=0--> R
+A2(⊤)          --NULL / w=0--> R
+A1(⊤)          --]; A⊤/λ / w=0--> R
+M(⊤)           --]; A⊤/λ / w=0--> R
+M(⊤)           --, / w=0--> A2(⊤)
+R              --ε; A⊤/A⊤ / w=0--> M(⊤)
+K1(n0)         --KEY(nombre) [nombre∉seen]; On0/On0 {seen∪={nombre}} / w=0--> C(n0,nombre)
+K1(n0)         --KEY(nombre) [nombre∈seen (duplicada)]; On0/On0 / w=1--> C(n0,nombre)
+K2(n0)         --KEY(nombre) [nombre∉seen]; On0/On0 {seen∪={nombre}} / w=0--> C(n0,nombre)
+K2(n0)         --KEY(nombre) [nombre∈seen (duplicada)]; On0/On0 / w=1--> C(n0,nombre)
+V(n1)          --{ [tipo≠object]; push O⊤ / w=1--> K1(⊤)
+V(n1)          --[ [tipo≠array]; push A⊤ / w=1--> A1(⊤)
+V(n1)          --STRING [⊨ long] / w=0--> R
+V(n1)          --STRING [⊭ long] / w=#fallos--> R
+V(n1)          --INT [tipo] / w=1--> R
+V(n1)          --FRAC [tipo] / w=1--> R
+V(n1)          --TRUE [tipo] / w=1--> R
+V(n1)          --FALSE [tipo] / w=1--> R
+V(n1)          --NULL [tipo] / w=1--> R
+C(n0,nombre)   --: / w=0--> V(n1)
+K1(n0)         --KEY(edad) [edad∉seen]; On0/On0 {seen∪={edad}} / w=0--> C(n0,edad)
+K1(n0)         --KEY(edad) [edad∈seen (duplicada)]; On0/On0 / w=1--> C(n0,edad)
+K2(n0)         --KEY(edad) [edad∉seen]; On0/On0 {seen∪={edad}} / w=0--> C(n0,edad)
+K2(n0)         --KEY(edad) [edad∈seen (duplicada)]; On0/On0 / w=1--> C(n0,edad)
+V(n2)          --{ [tipo≠object]; push O⊤ / w=1--> K1(⊤)
+V(n2)          --[ [tipo≠array]; push A⊤ / w=1--> A1(⊤)
+V(n2)          --STRING [tipo] / w=1--> R
+V(n2)          --INT [⊨ gec0∧lec1] / w=0--> R
+V(n2)          --INT [⊭ gec0∧lec1] / w=#fallos--> R
+V(n2)          --FRAC [tipo] / w=1--> R
+V(n2)          --TRUE [tipo] / w=1--> R
+V(n2)          --FALSE [tipo] / w=1--> R
+V(n2)          --NULL [tipo] / w=1--> R
+C(n0,edad)     --: / w=0--> V(n2)
+K1(n0)         --KEY(correo) [correo∉seen]; On0/On0 {seen∪={correo}} / w=0--> C(n0,correo)
+K1(n0)         --KEY(correo) [correo∈seen (duplicada)]; On0/On0 / w=1--> C(n0,correo)
+K2(n0)         --KEY(correo) [correo∉seen]; On0/On0 {seen∪={correo}} / w=0--> C(n0,correo)
+K2(n0)         --KEY(correo) [correo∈seen (duplicada)]; On0/On0 / w=1--> C(n0,correo)
+V(n3)          --{ [tipo≠object]; push O⊤ / w=1--> K1(⊤)
+V(n3)          --[ [tipo≠array]; push A⊤ / w=1--> A1(⊤)
+V(n3)          --STRING [⊨ D1] / w=0--> R
+V(n3)          --STRING [⊭ D1] / w=#fallos--> R
+V(n3)          --INT [tipo] / w=1--> R
+V(n3)          --FRAC [tipo] / w=1--> R
+V(n3)          --TRUE [tipo] / w=1--> R
+V(n3)          --FALSE [tipo] / w=1--> R
+V(n3)          --NULL [tipo] / w=1--> R
+C(n0,correo)   --: / w=0--> V(n3)
+K1(n0)         --KEY(rol) [rol∉seen]; On0/On0 {seen∪={rol}} / w=0--> C(n0,rol)
+K1(n0)         --KEY(rol) [rol∈seen (duplicada)]; On0/On0 / w=1--> C(n0,rol)
+K2(n0)         --KEY(rol) [rol∉seen]; On0/On0 {seen∪={rol}} / w=0--> C(n0,rol)
+K2(n0)         --KEY(rol) [rol∈seen (duplicada)]; On0/On0 / w=1--> C(n0,rol)
+V(n4)          --{ [∉enum]; push O⊤ / w=1--> K1(⊤)
+V(n4)          --[ [∉enum]; push A⊤ / w=1--> A1(⊤)
+V(n4)          --STRING [⊨ enum] / w=0--> R
+V(n4)          --STRING [⊭ enum] / w=#fallos--> R
+V(n4)          --INT [⊨ enum] / w=0--> R
+V(n4)          --INT [⊭ enum] / w=#fallos--> R
+V(n4)          --FRAC [⊨ enum] / w=0--> R
+V(n4)          --FRAC [⊭ enum] / w=#fallos--> R
+V(n4)          --TRUE [⊨ enum] / w=0--> R
+V(n4)          --TRUE [⊭ enum] / w=#fallos--> R
+V(n4)          --FALSE [⊨ enum] / w=0--> R
+V(n4)          --FALSE [⊭ enum] / w=#fallos--> R
+V(n4)          --NULL [⊨ enum] / w=0--> R
+V(n4)          --NULL [⊭ enum] / w=#fallos--> R
+C(n0,rol)      --: / w=0--> V(n4)
+K1(n0)         --KEY(activo) [activo∉seen]; On0/On0 {seen∪={activo}} / w=0--> C(n0,activo)
+K1(n0)         --KEY(activo) [activo∈seen (duplicada)]; On0/On0 / w=1--> C(n0,activo)
+K2(n0)         --KEY(activo) [activo∉seen]; On0/On0 {seen∪={activo}} / w=0--> C(n0,activo)
+K2(n0)         --KEY(activo) [activo∈seen (duplicada)]; On0/On0 / w=1--> C(n0,activo)
+V(n5)          --{ [tipo≠object]; push O⊤ / w=1--> K1(⊤)
+V(n5)          --[ [tipo≠array]; push A⊤ / w=1--> A1(⊤)
+V(n5)          --STRING [tipo] / w=1--> R
+V(n5)          --INT [tipo] / w=1--> R
+V(n5)          --FRAC [tipo] / w=1--> R
+V(n5)          --TRUE / w=0--> R
+V(n5)          --FALSE / w=0--> R
+V(n5)          --NULL [tipo] / w=1--> R
+C(n0,activo)   --: / w=0--> V(n5)
+K1(n0)         --KEY(*); On0/On0 {cnt+=1} / w=0--> C(n0,*)
+K2(n0)         --KEY(*); On0/On0 {cnt+=1} / w=0--> C(n0,*)
+C(n0,*)        --: [additionalProperties=false] / w=1--> V(⊤)
+K1(n0)         --} [req⊆seen ∧ límites]; On0/λ / w=0--> R
+K1(n0)         --} [¬(req⊆seen ∧ límites)]; On0/λ / w=|req∖seen|+…--> R
+N(n0)          --} [req⊆seen ∧ límites]; On0/λ / w=0--> R
+N(n0)          --} [¬(req⊆seen ∧ límites)]; On0/λ / w=|req∖seen|+…--> R
+N(n0)          --, / w=0--> K2(n0)
+R              --ε; On0/On0 / w=0--> N(n0)
+V(n0)          --{; push On0 {seen:=∅,cnt:=0} / w=0--> K1(n0)
+V(n0)          --[ [tipo≠array]; push A⊤ / w=1--> A1(⊤)
+V(n0)          --STRING [tipo] / w=1--> R
+V(n0)          --INT [tipo] / w=1--> R
+V(n0)          --FRAC [tipo] / w=1--> R
+V(n0)          --TRUE [tipo] / w=1--> R
+V(n0)          --FALSE [tipo] / w=1--> R
+V(n0)          --NULL [tipo] / w=1--> R

@@ -1,0 +1,33 @@
+digraph "AFD de número JSON" {
+  rankdir=LR;
+  node [shape=circle fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9];
+  __start [shape=point];
+  __start -> "inicio";
+  "inicio" [shape=circle];
+  "menos" [shape=circle];
+  "cero" [shape=doublecircle];
+  "entero" [shape=doublecircle];
+  "punto" [shape=circle];
+  "frac" [shape=doublecircle];
+  "exp" [shape=circle];
+  "signo_exp" [shape=circle];
+  "dig_exp" [shape=doublecircle];
+  "inicio" -> "menos" [label="-"];
+  "inicio" -> "cero" [label="0"];
+  "menos" -> "cero" [label="0"];
+  "inicio" -> "entero" [label="1\n2\n3\n4\n5\n6\n…"];
+  "menos" -> "entero" [label="1\n2\n3\n4\n5\n6\n…"];
+  "entero" -> "entero" [label="0\n1\n2\n3\n4\n5\n…"];
+  "punto" -> "frac" [label="0\n1\n2\n3\n4\n5\n…"];
+  "frac" -> "frac" [label="0\n1\n2\n3\n4\n5\n…"];
+  "exp" -> "dig_exp" [label="0\n1\n2\n3\n4\n5\n…"];
+  "signo_exp" -> "dig_exp" [label="0\n1\n2\n3\n4\n5\n…"];
+  "dig_exp" -> "dig_exp" [label="0\n1\n2\n3\n4\n5\n…"];
+  "cero" -> "punto" [label="."];
+  "entero" -> "punto" [label="."];
+  "cero" -> "exp" [label="e\nE"];
+  "entero" -> "exp" [label="e\nE"];
+  "frac" -> "exp" [label="e\nE"];
+  "exp" -> "signo_exp" [label="+\n-"];
+}

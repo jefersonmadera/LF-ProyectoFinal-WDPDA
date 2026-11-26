@@ -1,0 +1,37 @@
+# Entorno local completo: aplicación + MongoDB (mismo driver que Atlas /
+# Azure Cosmos DB for MongoDB en la nube).
+#   docker compose up --build
+#   docker compose exec web python -m web.backend.seed   # carga los casos
+#   http://localhost:8000
+services:
+  mongo:
+    image: mongo:7.0
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+
+  web:
+    build: .
+    depends_on: [mongo]
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      WDPDA_DB: wdpda
+    ports:
+      - "8000:8000"
+    # Sandbox: sistema de archivos de solo lectura, /tmp en memoria (allí
+    # se compilan y ejecutan los validadores), sin privilegios nuevos y
+    # con límites de CPU y memoria.
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,exec
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1g
+
+volumes:
+  mongo-data:
