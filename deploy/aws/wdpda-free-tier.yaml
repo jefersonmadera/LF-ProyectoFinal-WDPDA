@@ -168,7 +168,77 @@ Resources:
         LaunchTemplateId: !Ref ApiLaunchTemplate
         Version: !GetAtt ApiLaunchTemplate.LatestVersionNumber
 
+  # ---------------------------------------------------------------- HTTPS
+  # Una sola distribución de CloudFront sirve todo por HTTPS (certificado
+  # *.cloudfront.net de AWS): el frontend sale de S3 y /api/*, /ws/* y la
+  # documentación OpenAPI van a la instancia. Al ser el mismo origen, el
+  # navegador no bloquea contenido mixto ni necesita CORS, y el WebSocket
+  # pasa a wss://. La capa gratuita de CloudFront cubre 1 TB al mes.
+  Cdn:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub "${AWS::StackName} WDPDA (HTTPS)"
+        PriceClass: PriceClass_100
+        HttpVersion: http2
+        DefaultRootObject: index.html
+        Origins:
+          - Id: frontend
+            DomainName: !Sub "${FrontendBucket}.s3-website-${AWS::Region}.amazonaws.com"
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+          - Id: api
+            DomainName: !GetAtt ApiInstance.PublicDnsName
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+              OriginReadTimeout: 60
+        DefaultCacheBehavior:
+          TargetOriginId: frontend
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          # Política administrada CachingDisabled: cada despliegue se ve al instante.
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+        CacheBehaviors:
+          # Rutas del backend. OriginRequestPolicy AllViewerExceptHostHeader:
+          # reenvía cabeceras (incluidas las del WebSocket), query y cookies, salvo Host.
+          - PathPattern: /api/*
+            TargetOriginId: api
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+            CachedMethods: [GET, HEAD]
+            Compress: true
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+          - PathPattern: /ws/*
+            TargetOriginId: api
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+            CachedMethods: [GET, HEAD]
+            Compress: true
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+          - PathPattern: /docs*
+            TargetOriginId: api
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+            CachedMethods: [GET, HEAD]
+            Compress: true
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+          - PathPattern: /openapi.json
+            TargetOriginId: api
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+            CachedMethods: [GET, HEAD]
+            Compress: true
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+
 Outputs:
+  HttpsUrl:
+    Description: Aplicación completa por HTTPS (CloudFront); tarda unos minutos en propagarse.
+    Value: !Sub "https://${Cdn.DomainName}"
   ApiUrl:
     Description: Backend (API REST + WebSocket); el instalador tarda unos minutos en construir la imagen.
     Value: !Sub "http://${ApiInstance.PublicDnsName}"

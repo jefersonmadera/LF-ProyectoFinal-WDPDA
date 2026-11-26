@@ -27,10 +27,13 @@ $out = aws cloudformation describe-stacks --stack-name $Stack --region $Region `
 $api = ($out | Where-Object OutputKey -eq "ApiUrl").OutputValue
 $front = ($out | Where-Object OutputKey -eq "FrontendUrl").OutputValue
 $bucket = ($out | Where-Object OutputKey -eq "FrontendBucketName").OutputValue
+$https = ($out | Where-Object OutputKey -eq "HttpsUrl").OutputValue
 
 Write-Host "2/3 Subiendo el frontend a s3://$bucket ..."
 $cfg = Join-Path ([IO.Path]::GetTempPath()) "wdpda-config.js"
-Set-Content -Path $cfg -Encoding utf8 -Value "window.WDPDA_API = `"$api`";"
+# Por HTTPS (CloudFront) la API es el mismo origen; por el sitio HTTP de S3
+# se llama directo a la instancia.
+Set-Content -Path $cfg -Encoding utf8 -Value "window.WDPDA_API = location.protocol === `"https:`" ? `"`" : `"$api`";"
 $front_dir = Join-Path $root "web\frontend"
 aws s3 cp (Join-Path $front_dir "index.html") "s3://$bucket/index.html" --region $Region --content-type "text/html; charset=utf-8"
 aws s3 cp (Join-Path $front_dir "styles.css") "s3://$bucket/static/styles.css" --region $Region --content-type "text/css; charset=utf-8"
@@ -39,6 +42,7 @@ aws s3 cp $cfg "s3://$bucket/static/config.js" --region $Region --content-type "
 Remove-Item $cfg
 
 Write-Host "3/3 Listo."
+Write-Host "  HTTPS:    $https   (recomendada)"
 Write-Host "  Frontend: $front"
 Write-Host "  Backend:  $api   (la primera vez tarda ~10 min en construir la imagen)"
 Write-Host "  Salud:    $api/api/health"

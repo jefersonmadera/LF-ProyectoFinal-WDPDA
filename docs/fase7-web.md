@@ -112,7 +112,7 @@ MONGODB_URI="$URI" python -m web.backend.seed
 
 ### Opción B (implementada): AWS con capa gratuita, S3 + EC2 + DynamoDB
 
-Frontend en S3, backend en EC2 `t3.micro` con Docker y casos en
+HTTPS con CloudFront (mismo origen para frontend, API y WebSocket), frontend en S3, backend en EC2 `t3.micro` con Docker y casos en
 **DynamoDB** (`WDPDA_STORE=dynamodb`), todo con CloudFormation y un
 script. Guía completa, seguridad y estructura de los ítems:
 **[despliegue-aws.md](despliegue-aws.md)**.
