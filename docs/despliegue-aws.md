@@ -6,17 +6,26 @@ Infraestructura como código: `deploy/aws/wdpda-free-tier.yaml` (CloudFormation)
 ## 1. Arquitectura
 
 ```
-navegador ──HTTP──► S3 (sitio web estático)       index.html, static/app.js, styles.css,
-   │                                               static/config.js = URL del backend
-   │
-   └──HTTP / WebSocket──► EC2 t3.micro (Amazon Linux 2023)
-                            Docker: FastAPI + gcc (sandbox), puerto 80 → 8000
-                            rol IAM (sin llaves guardadas) ──► DynamoDB: tabla <pila>-casos
+navegador ──HTTPS / WSS──► CloudFront (certificado *.cloudfront.net)
+                             │  /            ──HTTP──► S3 (sitio web estático)
+                             │                         index.html, static/app.js, styles.css, config.js
+                             │  /api/*, /ws/*, /docs ──HTTP / WebSocket──► EC2 t3.micro (Amazon Linux 2023)
+                             │                         Docker: FastAPI + gcc (sandbox), puerto 80 → 8000
+                             │                         rol IAM (sin llaves guardadas) ──► DynamoDB: <pila>-casos
 ```
+
+**HTTPS.** Una sola distribución de CloudFront atiende todo por HTTPS:
+el frontend sale de S3 y las rutas del backend van a la instancia. Como
+página y API comparten origen, el navegador no bloquea contenido mixto, no
+hace falta CORS y el WebSocket pasa a `wss://`. HTTP se redirige a HTTPS.
+El certificado es el `*.cloudfront.net` de AWS, así que no se necesita
+dominio propio. El sitio HTTP de S3 sigue funcionando: `config.js` usa el
+mismo origen cuando la página carga por HTTPS y la URL de EC2 en otro caso.
 
 | Pieza | Servicio | Configuración para no gastar |
 | --- | --- | --- |
 | Frontend | S3, *static website hosting* | 4 archivos, unos 30 KB |
+| HTTPS | CloudFront (`PriceClass_100`, sin caché) | capa gratuita permanente: 1 TB y 10 millones de solicitudes al mes |
 | Backend | EC2 `t3.micro` (o `t2.micro` / `t4g.micro`) | una instancia, disco gp3 de 16 GB, sin IP elástica |
 | Base NoSQL | DynamoDB | capacidad aprovisionada 5 lectura / 5 escritura; 54 ítems (~200 KB) |
 | Permisos | IAM | el rol de la instancia solo puede leer y escribir **esa** tabla |

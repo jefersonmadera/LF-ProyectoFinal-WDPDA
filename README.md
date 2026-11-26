@@ -136,7 +136,7 @@ Luego abrir <http://localhost:8000>. Con MongoDB en contenedores:
 docker compose up --build
 ```
 
-En AWS (frontend en S3, backend en EC2, casos en DynamoDB), con la AWS CLI
+En AWS (todo por HTTPS con CloudFront; frontend en S3, backend en EC2, casos en DynamoDB), con la AWS CLI
 configurada; ver `docs/despliegue-aws.md`:
 
 ```powershell
